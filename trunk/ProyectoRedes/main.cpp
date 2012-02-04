@@ -199,6 +199,42 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
 
 
+    /* determine protocol */
+    switch(ip->ip_p) {
+    case IPPROTO_TCP:
+        printf("   Protocol: TCP\n");
+        break;
+    case IPPROTO_UDP:
+        printf("   Protocol: UDP\n");
+        return;
+    case IPPROTO_ICMP:
+        printf("   Protocol: ICMP\n");
+        return;
+    case IPPROTO_IP:
+        printf("   Protocol: IP\n");
+        return;
+    default:
+        printf("   Protocol: unknown\n");
+        return;
+    }
+
+    /*
+         *  OK, this packet is TCP.
+         */
+
+    /* define/compute tcp header offset */
+    tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
+    size_tcp = TH_OFF(tcp)*4;
+    if (size_tcp < 20) {
+        printf("   * Invalid TCP header length: %u bytes\n", size_tcp);
+        return;
+    }
+
+    printf("   Src port: %d\n", ntohs(tcp->th_sport));
+    printf("   Dst port: %d\n", ntohs(tcp->th_dport));
+
+
+  //------------------------------LOQUEANDO JJ------------------------------------
     cout<<"-----------------CHAMO1--------------"<<endl;
     u_char flags;
 
@@ -259,45 +295,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
          cout<<endl;
     }
     cout<<"-----------------CHAMO2--------------"<<endl;
-    /* determine protocol */
-    switch(ip->ip_p) {
-    case IPPROTO_TCP:
-        printf("   Protocol: TCP\n");
-        break;
-    case IPPROTO_UDP:
-        printf("   Protocol: UDP\n");
-        return;
-    case IPPROTO_ICMP:
-        printf("   Protocol: ICMP\n");
-        return;
-    case IPPROTO_IP:
-        printf("   Protocol: IP\n");
-        return;
-    default:
-        printf("   Protocol: unknown\n");
-        return;
-    }
-
-    /*
-         *  OK, this packet is TCP.
-         */
-
-    /* define/compute tcp header offset */
-    tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
-    size_tcp = TH_OFF(tcp)*4;
-    if (size_tcp < 20) {
-        printf("   * Invalid TCP header length: %u bytes\n", size_tcp);
-        return;
-    }
-
-    printf("   Src port: %d\n", ntohs(tcp->th_sport));
-    printf("   Dst port: %d\n", ntohs(tcp->th_dport));
+    //------------------------------fin LOQUEANDO JJ------------------------------------
 
     /* define/compute tcp payload (segment) offset */
     //payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
 
     /* compute tcp payload (segment) size */
-    size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+  //  size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
 
     /*
          * Print payload data; it might be binary, so don't just
@@ -328,7 +332,7 @@ int main(int argc, char *argv[])
   //  w.capture_device();
     w.show();
 
-    char *dev ="eth1"; //NULL;			/* capture device name */
+    char *dev ="wlan0"; //NULL;			/* capture device name */
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
 
