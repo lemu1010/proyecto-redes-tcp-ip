@@ -1,5 +1,8 @@
 #include <QtGui/QApplication>
+#include <QHash>
 #include "mainwindow.h"
+#include <iostream>
+using namespace std;
 
 void
         got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
@@ -103,8 +106,7 @@ void
 /*
  * print packet payload data (avoid printing binary data)
  */
-void
-        print_payload(const u_char *payload, int len)
+void print_payload(const u_char *payload, int len)
 {
 
     int len_rem = len;
@@ -148,12 +150,11 @@ void
 /*
  * dissect/print packet
  */
-void
-        got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
+void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-    static int count = 1;                   /* packet counter */
-
+    static int countPacket = 1;    /* packet counter */
+    static int countNodes  =0;
     /* declare pointers to packet headers */
     const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
     const struct sniff_ip *ip;              /* The IP header */
@@ -163,9 +164,11 @@ void
     int size_ip;
     int size_tcp;
     int size_payload;
+    static QHash<QString,int> hashNodos;
+    QString *numIP;
 
-    printf("\nPacket number %d:\n", count);
-    count++;
+    printf("\nPacket number %d:\n", countPacket);
+    countPacket++;
 
     /* define ethernet header */
     ethernet = (struct sniff_ethernet*)(packet);
@@ -173,6 +176,7 @@ void
     /* define/compute ip header offset */
     ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
     size_ip = IP_HL(ip)*4;
+
     if (size_ip < 20) {
         printf("   * Invalid IP header length: %u bytes\n", size_ip);
         return;
@@ -182,6 +186,42 @@ void
     printf("       From: %s\n", inet_ntoa(ip->ip_src));
     printf("         To: %s\n", inet_ntoa(ip->ip_dst));
 
+    numIP=new QString(inet_ntoa(ip->ip_src));
+
+    if(!hashNodos.contains(*numIP))
+         hashNodos.insert(*numIP,++countNodes);
+    cout<<"ID: "<<ip->ip_id<<endl;
+    cout<<"VENTANA="<<tcp->th_win<<endl;
+    cout<<"nodo fuente: "<<hashNodos.value(*numIP)<<endl;
+    cout<<"numero seq="<<tcp->th_seq<<endl;
+    cout<<"bit ack="<<TH_FLAGS<<endl;
+    cout<<"numero ack="<<tcp->th_ack<<endl;
+
+    numIP=new QString(inet_ntoa(ip->ip_dst));
+
+    if(!hashNodos.contains(*numIP))
+         hashNodos.insert(*numIP,++countNodes);
+
+    cout<<"nodo destino: "<<hashNodos.value(*numIP)<<endl;
+
+    cout<<"-----------------CHAMO1--------------"<<endl;
+    u_char flags;
+    printf("CAPA 4 TCP-> puerto fuente:%d puerto destino:%d sequencia: 0x%x ack: 0x%x flags:", htons(tcp->th_sport), htons(tcp->th_dport),
+    ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+cout<<endl;
+    if ((flags = tcp->th_flags) &(TH_FIN|TH_SYN|TH_RST|TH_PUSH|TH_ACK|TH_URG|TH_ECE|TH_CWR)) {
+         cout<<"ENTRA "<<endl;
+        if (flags & TH_FIN) printf(" FIN");
+        if (flags & TH_SYN) printf(" SYN");
+        if (flags & TH_RST) printf(" RST");
+        if (flags & TH_PUSH) printf(" PUSH");
+        if (flags & TH_ACK) printf(" ACK");
+        if (flags & TH_URG) printf(" URG");
+        if (flags & TH_ECE) printf(" ECE");
+        if (flags & TH_CWR) printf(" CWR");
+         cout<<endl;
+    }
+    cout<<"-----------------CHAMO2--------------"<<endl;
     /* determine protocol */
     switch(ip->ip_p) {
     case IPPROTO_TCP:
@@ -255,7 +295,7 @@ int main(int argc, char *argv[])
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
 
-    char filter_exp[] = "ip";		/* filter expression [3] */
+    char filter_exp[] = " tcp";		/* filter expression [3] */
     struct bpf_program fp;			/* compiled filter program (expression) */
     bpf_u_int32 mask;			/* subnet mask */
     bpf_u_int32 net;			/* ip */
