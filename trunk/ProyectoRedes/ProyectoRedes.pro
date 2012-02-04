@@ -12,8 +12,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    ../../Dropbox/Redes de Computadores/codigos ejemplos/aprendiendo/sniffex.c \
-    ../../Dropbox/Redes de Computadores/codigos ejemplos/aprendiendo/sniffex.c
+
 
 HEADERS  += mainwindow.h
 
