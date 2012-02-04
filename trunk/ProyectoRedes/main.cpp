@@ -165,7 +165,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     int size_tcp;
     int size_payload;
     static QHash<QString,int> hashNodos;
-    QString *numIP;
+    QString *numSrcIP,*numTgtIP;
 
     printf("\nPacket number %d:\n", countPacket);
     countPacket++;
@@ -186,39 +186,76 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     printf("       From: %s\n", inet_ntoa(ip->ip_src));
     printf("         To: %s\n", inet_ntoa(ip->ip_dst));
 
-    numIP=new QString(inet_ntoa(ip->ip_src));
+    numSrcIP=new QString(inet_ntoa(ip->ip_src));
 
-    if(!hashNodos.contains(*numIP))
-         hashNodos.insert(*numIP,++countNodes);
-    cout<<"ID: "<<ip->ip_id<<endl;
-    cout<<"VENTANA="<<tcp->th_win<<endl;
-    cout<<"nodo fuente: "<<hashNodos.value(*numIP)<<endl;
-    cout<<"numero seq="<<tcp->th_seq<<endl;
-    cout<<"bit ack="<<TH_FLAGS<<endl;
-    cout<<"numero ack="<<tcp->th_ack<<endl;
+    if(!hashNodos.contains(*numSrcIP))
+         hashNodos.insert(*numSrcIP,++countNodes);
 
-    numIP=new QString(inet_ntoa(ip->ip_dst));
 
-    if(!hashNodos.contains(*numIP))
-         hashNodos.insert(*numIP,++countNodes);
+    numTgtIP=new QString(inet_ntoa(ip->ip_dst));
 
-    cout<<"nodo destino: "<<hashNodos.value(*numIP)<<endl;
+    if(!hashNodos.contains(*numTgtIP))
+         hashNodos.insert(*numTgtIP,++countNodes);
+
+
 
     cout<<"-----------------CHAMO1--------------"<<endl;
     u_char flags;
-    printf("CAPA 4 TCP-> puerto fuente:%d puerto destino:%d sequencia: 0x%x ack: 0x%x flags:", htons(tcp->th_sport), htons(tcp->th_dport),
-    ntohl(tcp->th_seq), ntohl(tcp->th_ack));
-cout<<endl;
+
     if ((flags = tcp->th_flags) &(TH_FIN|TH_SYN|TH_RST|TH_PUSH|TH_ACK|TH_URG|TH_ECE|TH_CWR)) {
          cout<<"ENTRA "<<endl;
-        if (flags & TH_FIN) printf(" FIN");
-        if (flags & TH_SYN) printf(" SYN");
-        if (flags & TH_RST) printf(" RST");
-        if (flags & TH_PUSH) printf(" PUSH");
-        if (flags & TH_ACK) printf(" ACK");
-        if (flags & TH_URG) printf(" URG");
-        if (flags & TH_ECE) printf(" ECE");
-        if (flags & TH_CWR) printf(" CWR");
+//        if (flags & TH_FIN) printf(" FIN");
+//        if (flags & TH_SYN) printf(" SYN");
+//        if (flags & TH_RST) printf(" RST");
+//        if (flags & TH_PUSH) printf(" PUSH");
+//        if (flags & TH_ACK) printf(" ACK");
+//        if (flags & TH_URG) printf(" URG");
+//        if (flags & TH_ECE) printf(" ECE");
+//        if (flags & TH_CWR) printf(" CWR");
+         printf("CAPA 4 TCP-> puerto fuente:%d puerto destino:%d sequencia: 0x%x ack: 0x%x flags:", htons(tcp->th_sport), htons(tcp->th_dport),
+         ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+     cout<<endl;
+
+        if ((flags & TH_ACK) &&(flags & TH_SYN))
+        {
+            cout<<"SYN+ACK"<<endl;
+            cout<<"ID: "<<ip->ip_id<<endl;
+            cout<<"VENTANA="<<tcp->th_win<<endl;
+            cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
+            cout<<"numero seq="<<tcp->th_seq<<endl;
+            cout<<"bit ack="<<TH_FLAGS<<endl;
+            cout<<"numero ack="<<tcp->th_ack<<endl;
+
+            //------------------------------------
+            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
+        }
+        if ((flags & TH_SYN)and not((flags & TH_ACK)))
+        {
+            cout<<"SYN"<<endl;
+            cout<<"ID: "<<ip->ip_id<<endl;
+            cout<<"VENTANA="<<tcp->th_win<<endl;
+            cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
+            cout<<"numero seq="<<tcp->th_seq<<endl;
+            cout<<"bit ack="<<TH_FLAGS<<endl;
+            cout<<"numero ack="<<tcp->th_ack<<endl;
+
+            //------------------------------------
+            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
+        }
+        if ((flags & TH_ACK)and not((flags & TH_SYN)) )
+        {
+            cout<<"ACK"<<endl;
+            cout<<"ID: "<<ip->ip_id<<endl;
+            cout<<"VENTANA="<<tcp->th_win<<endl;
+            cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
+            cout<<"numero seq="<<tcp->th_seq<<endl;
+            cout<<"bit ack="<<TH_FLAGS<<endl;
+            cout<<"numero ack="<<tcp->th_ack<<endl;
+
+            //------------------------------------
+            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
+        }
+
          cout<<endl;
     }
     cout<<"-----------------CHAMO2--------------"<<endl;
@@ -295,7 +332,7 @@ int main(int argc, char *argv[])
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
 
-    char filter_exp[] = " tcp";		/* filter expression [3] */
+    char filter_exp[] = " tcp and port 80";		/* filter expression [3] */
     struct bpf_program fp;			/* compiled filter program (expression) */
     bpf_u_int32 mask;			/* subnet mask */
     bpf_u_int32 net;			/* ip */
