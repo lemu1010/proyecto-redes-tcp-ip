@@ -9,6 +9,10 @@
 
 using namespace std;
 
+fstream trace("../ProyectoRedes/trazaReal.tr",ios::out);
+
+QString calculo_time(time_t secondsBase, time_t usecondsBase, time_t seconds2, time_t useconds2);
+
 void
         got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
@@ -164,7 +168,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
     const struct sniff_ip *ip;              /* The IP header */
     const struct sniff_tcp *tcp;            /* The TCP header */
-    const char *payload;                    /* Packet payload */
+    const char *payload;
+    /* Packet payload */
 
     int size_ip;
     int size_tcp;
@@ -179,12 +184,10 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     /* convert the timestamp to readable format */
     local_tv_sec = header->ts.tv_sec;
     ltime = localtime(&local_tv_sec);
-
-    strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
+    strftime( timestr, sizeof timestr, "%H%M%S", ltime);
 
     /* print timestamp and length of the packet */
-    printf("Tiempo: %s.%.6d len:%d ", timestr, header->ts.tv_usec, header->len);
-
+    printf("Tiempo : %s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
 
     static QHash<QString,int> hashNodos;
     QString *numSrcIP,*numTgtIP;
@@ -335,17 +338,50 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 //    }
 
     /*********** DATA TRACE ************/
-    fstream trace;
-    trace.open("trazaReal.tr",ios::out);
 
-    QString eventType = "x";
+    string eventType = "x";
 
+
+    //printf("Tiempo OLD SEC: %d\n",&ltime);
+
+    static time_t timeSecBase = ltime->tm_sec;
+    static time_t timeUSecBase = header->ts.tv_usec;
+
+    time_t timeSecNew = ltime->tm_sec;
+    time_t timeUSecNew = header->ts.tv_usec;
+
+    string cad = calculo_time(timeSecBase,timeUSecBase,timeSecNew,timeUSecNew).toStdString();
+
+    trace << eventType << " " << cad << endl;
 
 
     return;
 }
 
+QString calculo_time(time_t secondsBase, time_t usecondsBase, time_t seconds2, time_t useconds2)
+{
 
+    time_t deltaUseconds, deltaSeconds;
+
+    if( usecondsBase <= useconds2 )
+    {
+        deltaUseconds = useconds2 - usecondsBase;
+        deltaSeconds = seconds2 - secondsBase;
+
+    }
+    else
+    {
+        deltaUseconds = 100000 + ( useconds2 - usecondsBase );
+        deltaSeconds = ( seconds2 - secondsBase ) - 1;
+    }
+
+    printf("\n\n");
+    printf("USecBase = %d, USec2 = %d, DeltaUSec = %d \n SecBase = %d, Sec2 = %d, DeltaSec = %d ",usecondsBase,useconds2,deltaUseconds,secondsBase,seconds2,deltaSeconds );
+    printf("\n\n");
+
+    return QString::number(deltaSeconds).append(".").append(QString::number(deltaUseconds));
+
+}
 
 
 
