@@ -1,7 +1,12 @@
 #include <QtGui/QApplication>
 #include <QHash>
+#include <QTimer>
+#include <QDebug>
 #include "mainwindow.h"
 #include <iostream>
+#include <time.h>
+#include <fstream>
+
 using namespace std;
 
 void
@@ -164,6 +169,23 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     int size_ip;
     int size_tcp;
     int size_payload;
+
+
+    struct tm *ltime;
+    char timestr[16];
+    time_t local_tv_sec;
+
+
+    /* convert the timestamp to readable format */
+    local_tv_sec = header->ts.tv_sec;
+    ltime = localtime(&local_tv_sec);
+
+    strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
+
+    /* print timestamp and length of the packet */
+    printf("Tiempo: %s.%.6d len:%d ", timestr, header->ts.tv_usec, header->len);
+
+
     static QHash<QString,int> hashNodos;
     QString *numSrcIP,*numTgtIP;
 
@@ -312,14 +334,16 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 //        print_payload(payload, size_payload);
 //    }
 
+    /*********** DATA TRACE ************/
+    fstream trace;
+    trace.open("trazaReal.tr",ios::out);
+
+    QString eventType = "x";
+
+
+
     return;
 }
-
-
-
-
-
-
 
 
 
@@ -329,10 +353,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-  //  w.capture_device();
-    w.show();
+    w.capture_device();
+    //w.show();
+
 
     char *dev ="wlan0"; //NULL;			/* capture device name */
+
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
 

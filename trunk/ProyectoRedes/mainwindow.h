@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtGui>
+#include <fstream>
+
 #define APP_NAME		"sniffex"
 #define APP_DESC		"Sniffer example using libpcap"
 #define APP_COPYRIGHT	"Copyright (c) 2005 The Tcpdump Group"
@@ -108,9 +111,14 @@ public:
 
 //    void init_sniffex();
 
+//private slots:
+//    void slot_contador();
     
 private:
     Ui::MainWindow *ui;
+
+    QTimer *timer;
+
     char *net;
     char *mask;
     char *dev;
@@ -121,6 +129,7 @@ private:
     struct in_addr addr;
     pcap_if_t* lista;
     pcap_if_t* aux;
+
 
 };
 
