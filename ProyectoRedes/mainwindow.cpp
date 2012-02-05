@@ -6,11 +6,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 
-//    QTimer *timer = new QTimer();
-//    timer->start(1000);
-//    connect(timer, SIGNAL(timeout()), this, SLOT(slot_contador()));
-
-
     ui->setupUi(this);
 }
 
@@ -69,12 +64,6 @@ void MainWindow::capture_device()
 //    exit(-1);
 
 }
-
-//void MainWindow::slot_contador()
-//{
-
-//    qDebug() << "GASAS" << endl;
-//}
 
 MainWindow::~MainWindow()
 {

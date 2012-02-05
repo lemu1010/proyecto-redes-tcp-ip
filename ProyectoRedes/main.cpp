@@ -4,7 +4,8 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include <iostream>
-#include <time.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <fstream>
 
 using namespace std;
@@ -13,59 +14,19 @@ fstream trace("../ProyectoRedes/trazaReal.tr",ios::out);
 
 QString calculo_time(time_t secondsBase, time_t usecondsBase, time_t seconds2, time_t useconds2);
 
-void
-        got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
-void
-        print_payload(const u_char *payload, int len);
+void print_payload(const u_char *payload, int len);
 
-void
-        print_hex_ascii_line(const u_char *payload, int len, int offset);
+void print_hex_ascii_line(const u_char *payload, int len, int offset);
 
-void
-        print_app_banner(void);
-
-void
-        print_app_usage(void);
-
-/*
- * app name/banner
- */
-void
-        print_app_banner(void)
-{
-
-    printf("%s - %s\n", APP_NAME, APP_DESC);
-    printf("%s\n", APP_COPYRIGHT);
-    printf("%s\n", APP_DISCLAIMER);
-    printf("\n");
-
-    return;
-}
-
-/*
- * print help text
- */
-void
-        print_app_usage(void)
-{
-
-    printf("Usage: %s [interface]\n", APP_NAME);
-    printf("\n");
-    printf("Options:\n");
-    printf("    interface    Listen on <interface> for packets.\n");
-    printf("\n");
-
-    return;
-}
 
 /*
  * print data in rows of 16 bytes: offset   hex   ascii
  *
  * 00000   47 45 54 20 2f 20 48 54  54 50 2f 31 2e 31 0d 0a   GET / HTTP/1.1..
  */
-void
-        print_hex_ascii_line(const u_char *payload, int len, int offset)
+void print_hex_ascii_line(const u_char *payload, int len, int offset)
 {
 
     int i;
@@ -168,13 +129,9 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
     const struct sniff_ip *ip;              /* The IP header */
     const struct sniff_tcp *tcp;            /* The TCP header */
-    const char *payload;
-    /* Packet payload */
 
     int size_ip;
     int size_tcp;
-    int size_payload;
-
 
     struct tm *ltime;
     char timestr[16];
@@ -184,9 +141,10 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     /* convert the timestamp to readable format */
     local_tv_sec = header->ts.tv_sec;
     ltime = localtime(&local_tv_sec);
-    strftime( timestr, sizeof timestr, "%H%M%S", ltime);
+    strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
 
     /* print timestamp and length of the packet */
+    cout<<"\n-------------------------------"<<endl;
     printf("Tiempo : %s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
 
     static QHash<QString,int> hashNodos;
@@ -214,15 +172,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     numSrcIP=new QString(inet_ntoa(ip->ip_src));
 
     if(!hashNodos.contains(*numSrcIP))
-         hashNodos.insert(*numSrcIP,++countNodes);
+        hashNodos.insert(*numSrcIP,++countNodes);
 
 
     numTgtIP=new QString(inet_ntoa(ip->ip_dst));
 
     if(!hashNodos.contains(*numTgtIP))
-         hashNodos.insert(*numTgtIP,++countNodes);
-
-
+        hashNodos.insert(*numTgtIP,++countNodes);
 
     /* determine protocol */
     switch(ip->ip_p) {
@@ -243,10 +199,6 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         return;
     }
 
-    /*
-         *  OK, this packet is TCP.
-         */
-
     /* define/compute tcp header offset */
     tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
     size_tcp = TH_OFF(tcp)*4;
@@ -259,23 +211,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     printf("   Dst port: %d\n", ntohs(tcp->th_dport));
 
 
-  //------------------------------LOQUEANDO JJ------------------------------------
-    cout<<"-----------------CHAMO1--------------"<<endl;
+    //------------------------------LOQUEANDO JJ------------------------------------
+
     u_char flags;
 
     if ((flags = tcp->th_flags) &(TH_FIN|TH_SYN|TH_RST|TH_PUSH|TH_ACK|TH_URG|TH_ECE|TH_CWR)) {
-         cout<<"ENTRA "<<endl;
-//        if (flags & TH_FIN) printf(" FIN");
-//        if (flags & TH_SYN) printf(" SYN");
-//        if (flags & TH_RST) printf(" RST");
-//        if (flags & TH_PUSH) printf(" PUSH");
-//        if (flags & TH_ACK) printf(" ACK");
-//        if (flags & TH_URG) printf(" URG");
-//        if (flags & TH_ECE) printf(" ECE");
-//        if (flags & TH_CWR) printf(" CWR");
-         printf("CAPA 4 TCP-> puerto fuente:%d puerto destino:%d sequencia: 0x%x ack: 0x%x flags:", htons(tcp->th_sport), htons(tcp->th_dport),
-         ntohl(tcp->th_seq), ntohl(tcp->th_ack));
-     cout<<endl;
+        printf("CAPA 4 TCP-> sequencia: 0x%x ack: 0x%x flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+        cout<<endl;
 
         if ((flags & TH_ACK) &&(flags & TH_SYN))
         {
@@ -317,51 +259,50 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
             cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
         }
 
-         cout<<endl;
+        cout<<endl;
     }
-    cout<<"-----------------CHAMO2--------------"<<endl;
+
     //------------------------------fin LOQUEANDO JJ------------------------------------
 
-    /* define/compute tcp payload (segment) offset */
-    //payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
+    //----- NAME PACKET -----//
 
-    /* compute tcp payload (segment) size */
-  //  size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+    string namePacket;
 
-    /*
-         * Print payload data; it might be binary, so don't just
-         * treat it as a string.
-         */
-//    if (size_payload > 0) {
-//        printf("   Payload (%d bytes):\n", size_payload);
-//        print_payload(payload, size_payload);
-//    }
+    if( (tcp->th_flags & TH_ACK) )
+        namePacket = "ack";
+    else
+        namePacket = "tcp";
+
 
     /*********** DATA TRACE ************/
 
     string eventType = "x";
-
-
-    //printf("Tiempo OLD SEC: %d\n",&ltime);
+    string banderas = "-------";
 
     static time_t timeSecBase = ltime->tm_sec;
-    static time_t timeUSecBase = header->ts.tv_usec;
+    static suseconds_t timeUSecBase = header->ts.tv_usec;
 
     time_t timeSecNew = ltime->tm_sec;
-    time_t timeUSecNew = header->ts.tv_usec;
+    suseconds_t timeUSecNew = header->ts.tv_usec;
 
     string cad = calculo_time(timeSecBase,timeUSecBase,timeSecNew,timeUSecNew).toStdString();
 
-    trace << eventType << " " << cad << endl;
+    cout<<"-------------------------------"<<endl;
+
+    trace << eventType << " " << cad << " " << hashNodos.value(*numSrcIP) << " ";
+    trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << ip->ip_len << " ";
+    trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
+    trace << tcp->th_win << " " << tcp->th_seq << " " << ip->ip_id << endl;
 
 
     return;
 }
 
-QString calculo_time(time_t secondsBase, time_t usecondsBase, time_t seconds2, time_t useconds2)
+QString calculo_time(time_t secondsBase, suseconds_t usecondsBase, time_t seconds2, suseconds_t useconds2)
 {
 
-    time_t deltaUseconds, deltaSeconds;
+    suseconds_t deltaUseconds;
+    time_t deltaSeconds;
 
     if( usecondsBase <= useconds2 )
     {
@@ -371,8 +312,13 @@ QString calculo_time(time_t secondsBase, time_t usecondsBase, time_t seconds2, t
     }
     else
     {
-        deltaUseconds = 100000 + ( useconds2 - usecondsBase );
+        deltaUseconds = 1000000 + ( useconds2 - usecondsBase );
         deltaSeconds = ( seconds2 - secondsBase ) - 1;
+    }
+
+    if( secondsBase > seconds2 )
+    {
+        deltaSeconds = ( 60 + seconds2 ) - secondsBase;
     }
 
     printf("\n\n");
@@ -389,11 +335,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    w.capture_device();
+    //w.capture_device();
     //w.show();
 
-
-    char *dev ="wlan0"; //NULL;			/* capture device name */
+    char *dev ="eth0"; //NULL;			/* capture device name */
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
@@ -403,27 +348,6 @@ int main(int argc, char *argv[])
     bpf_u_int32 mask;			/* subnet mask */
     bpf_u_int32 net;			/* ip */
     int num_packets = -1;			/* number of packets to capture */
-
-    print_app_banner();
-
-    /* check for capture device name on command-line */
-//    if (argc == 2) {
-//        dev = argv[1];
-//    }
-//    else if (argc > 2) {
-//        fprintf(stderr, "error: unrecognized command-line options\n\n");
-//        print_app_usage();
-//        exit(EXIT_FAILURE);
-//    }
-//    else {
-//        /* find a capture device if not specified on command-line */
-//        dev = pcap_lookupdev(errbuf);
-//        if (dev == NULL) {
-//            fprintf(stderr, "Couldn't find default device: %s\n",
-//                    errbuf);
-//            exit(EXIT_FAILURE);
-//        }
-//    }
 
     /* get network number and mask associated with capture device */
     if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
@@ -444,12 +368,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Couldn't open device %s: %s\n", dev, errbuf);
         exit(EXIT_FAILURE);
     }
-
-    /* make sure we're capturing on an Ethernet device [2]
-            if (pcap_datalink(handle) != DLT_IEEE802_11) {
-                    fprintf(stderr, "%s is not an Ethernet\n", dev);
-                    exit(EXIT_FAILURE);
-            }*/
 
     /* compile the filter expression */
     if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
