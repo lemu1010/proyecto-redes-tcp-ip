@@ -5,61 +5,76 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+
+//    QTimer *timer = new QTimer();
+//    timer->start(1000);
+//    connect(timer, SIGNAL(timeout()), this, SLOT(slot_contador()));
+
+
     ui->setupUi(this);
 }
 
 void MainWindow::capture_device()
 {
 
-    if( (ret = pcap_findalldevs(&lista,errbuf)) == -1  )
-    {
-        printf("ERROR: %s\n",errbuf);
-        exit(-1);
-    }
 
-    aux = lista;
 
-    while( aux != NULL )
-    {
-        printf("Nombre del Dispositivo: %s\n",aux->name);
-        printf("Bandera: %d\n",aux->flags);
-        printf("Descripcion: %s\n",aux->description);
 
-        dev = aux->name;
+//    if( (ret = pcap_findalldevs(&lista,errbuf)) == -1  )
+//    {
+//        printf("ERROR: %s\n",errbuf);
+//        exit(-1);
+//    }
 
-        if( (ret = pcap_lookupnet(dev,&netp,&maskp,errbuf)) == -1 )
-        {
-            printf("ERROR: %s\n",errbuf);
-        }
+//    aux = lista;
 
-        printf("ret devolvio: %d\n",ret);
-        addr.s_addr = netp;
+//    while( aux != NULL )
+//    {
+//        printf("Nombre del Dispositivo: %s\n",aux->name);
+//        printf("Bandera: %d\n",aux->flags);
+//        printf("Descripcion: %s\n",aux->description);
 
-        if( (net = inet_ntoa(addr)) == NULL )
-        {
-            perror("inet_ntoa");
-            exit(-1);
-        }
+//        dev = aux->name;
 
-        printf("Direccion de Red: %s\n",net);
+//        if( (ret = pcap_lookupnet(dev,&netp,&maskp,errbuf)) == -1 )
+//        {
+//            printf("ERROR: %s\n",errbuf);
+//        }
 
-        addr.s_addr = maskp;
-        mask = inet_ntoa(addr);
+//        printf("ret devolvio: %d\n",ret);
+//        addr.s_addr = netp;
 
-        if( (net = inet_ntoa(addr)) == NULL)
-        {
-            perror("inet_ntoa");
-            exit(-1);
-        }
+//        if( (net = inet_ntoa(addr)) == NULL )
+//        {
+//            perror("inet_ntoa");
+//            exit(-1);
+//        }
 
-        printf("Mascara de Red: %s\n\n\n",mask);
+//        printf("Direccion de Red: %s\n",net);
 
-        aux = aux->next;
-    }
+//        addr.s_addr = maskp;
+//        mask = inet_ntoa(addr);
 
-    exit(-1);
+//        if( (net = inet_ntoa(addr)) == NULL)
+//        {
+//            perror("inet_ntoa");
+//            exit(-1);
+//        }
+
+//        printf("Mascara de Red: %s\n\n\n",mask);
+
+//        aux = aux->next;
+//    }
+
+//    exit(-1);
 
 }
+
+//void MainWindow::slot_contador()
+//{
+
+//    qDebug() << "GASAS" << endl;
+//}
 
 MainWindow::~MainWindow()
 {
