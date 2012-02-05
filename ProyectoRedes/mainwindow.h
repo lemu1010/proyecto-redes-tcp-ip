@@ -95,6 +95,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
+
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void capture_device();
@@ -129,6 +130,7 @@ private:
     struct in_addr addr;
     pcap_if_t* lista;
     pcap_if_t* aux;
+
 
 
 };
