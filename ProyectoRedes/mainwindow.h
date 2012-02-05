@@ -93,23 +93,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void capture_device();
-
-//    void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
-
-//    void print_payload(const u_char *payload, int len);
-
-//    void print_hex_ascii_line(const u_char *payload, int len, int offset);
-
-//    void print_app_banner(void);
-
-//    void print_app_usage(void);
-
-//    void init_sniffex();
     
 private:
     Ui::MainWindow *ui;
-
-    QTimer *timer;
 
     char *net;
     char *mask;
