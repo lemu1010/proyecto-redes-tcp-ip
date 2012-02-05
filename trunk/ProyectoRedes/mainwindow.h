@@ -4,12 +4,6 @@
 #include <QMainWindow>
 #include <QtGui>
 #include <fstream>
-
-#define APP_NAME		"sniffex"
-#define APP_DESC		"Sniffer example using libpcap"
-#define APP_COPYRIGHT	"Copyright (c) 2005 The Tcpdump Group"
-#define APP_DISCLAIMER	"THERE IS ABSOLUTELY NO WARRANTY FOR THIS PROGRAM."
-
 #include <pcap.h>
 #include <stdio.h>
 #include <string.h>
@@ -111,9 +105,6 @@ public:
 //    void print_app_usage(void);
 
 //    void init_sniffex();
-
-//private slots:
-//    void slot_contador();
     
 private:
     Ui::MainWindow *ui;
