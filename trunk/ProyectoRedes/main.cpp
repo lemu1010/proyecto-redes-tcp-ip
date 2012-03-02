@@ -12,7 +12,7 @@ using namespace std;
 
 fstream trace("../ProyectoRedes/trazaReal.tr",ios::out);
 
-QString calculo_time(time_t secondsBase, time_t usecondsBase, time_t seconds2, time_t useconds2);
+float calculo_time(QString hourBase, suseconds_t usecondsBase, QString hourNew, suseconds_t usecondsNew);
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
@@ -279,17 +279,18 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     string eventType = "x";
     string banderas = "-------";
 
-    static time_t timeSecBase = ltime->tm_sec;
+    /*static time_t timeSecBase = ltime->tm_sec;*/
     static suseconds_t timeUSecBase = header->ts.tv_usec;
+    static QString timeHourBase(timestr);
 
-    time_t timeSecNew = ltime->tm_sec;
     suseconds_t timeUSecNew = header->ts.tv_usec;
-
-    string cad = calculo_time(timeSecBase,timeUSecBase,timeSecNew,timeUSecNew).toStdString();
+    QString  timeHourNew(timestr);
+    float diff = calculo_time(timeHourBase,timeUSecBase,timeHourNew,timeUSecNew);
 
     cout<<"-------------------------------"<<endl;
+    cout<<"diferencia "<<diff<<endl;
 
-    trace << eventType << " " << cad << " " << hashNodos.value(*numSrcIP) << " ";
+    trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
     trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << ip->ip_len << " ";
     trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
     trace << tcp->th_win << " " << tcp->th_seq << " " << ip->ip_id << endl;
@@ -298,34 +299,28 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     return;
 }
 
-QString calculo_time(time_t secondsBase, suseconds_t usecondsBase, time_t seconds2, suseconds_t useconds2)
+float calculo_time(QString hourBase, suseconds_t usecondsBase, QString hourNew, suseconds_t usecondsNew)
 {
 
-    suseconds_t deltaUseconds;
-    time_t deltaSeconds;
+    QString tbase,tnuevo;
+    int secondsBasef,secondsNewf;
 
-    if( usecondsBase <= useconds2 )
-    {
-        deltaUseconds = useconds2 - usecondsBase;
-        deltaSeconds = seconds2 - secondsBase;
 
-    }
-    else
-    {
-        deltaUseconds = 1000000 + ( useconds2 - usecondsBase );
-        deltaSeconds = ( seconds2 - secondsBase ) - 1;
-    }
+    secondsBasef=hourBase.section(":",0,0).toInt()*3600+hourBase.section(":",1,1).toInt()*60+hourBase.section(":",2,2).toInt();
+    secondsNewf=hourNew.section(":",0,0).toInt()*3600+hourNew.section(":",1,1).toInt()*60+hourNew.section(":",2,2).toInt();
+//    cout<<"HORA BASE"<<hourBase.section(":",1,1).toStdString()<<endl;
+//    cout<<"MIN BASE"<<hourBase.section(":",2,2).toStdString()<<endl;
+//    cout<<"SEC BASE"<<hourBase.section(":",3,3).toStdString()<<endl;
 
-    if( secondsBase > seconds2 )
-    {
-        deltaSeconds = ( 60 + seconds2 ) - secondsBase;
-    }
+    tbase = QString::number(secondsBasef).append(".").append(QString::number(usecondsBase));
+    tnuevo=  QString::number(secondsNewf).append(".").append(QString::number(usecondsNew));
+    cout<<"base "<<tbase.toStdString()<<endl;
+    cout<<"nuevo "<<tnuevo.toStdString()<<endl;
+   /* cout<<"base en float"<<tnuevo.toDouble()<<endl;
+    cout<<"nuevo en float "<<tbase.toDouble()<<endl;*/
+    cout<<"diferencia en float "<<tnuevo.toDouble()-tbase.toDouble()<<endl;
 
-    printf("\n\n");
-    printf("USecBase = %d, USec2 = %d, DeltaUSec = %d \n SecBase = %d, Sec2 = %d, DeltaSec = %d ",usecondsBase,useconds2,deltaUseconds,secondsBase,seconds2,deltaSeconds );
-    printf("\n\n");
-
-    return QString::number(deltaSeconds).append(".").append(QString::number(deltaUseconds));
+    return tnuevo.toDouble()-tbase.toDouble() < 0 ? tnuevo.toDouble()-tbase.toDouble()+1 :tnuevo.toDouble()-tbase.toDouble() ;
 
 }
 
@@ -338,7 +333,7 @@ int main(int argc, char *argv[])
     //w.capture_device();
     //w.show();
 
-    char *dev ="eth0"; //NULL;			/* capture device name */
+    char *dev ="eth1"; //NULL;			/* capture device name */
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
