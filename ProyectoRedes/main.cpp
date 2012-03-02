@@ -217,6 +217,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     if ((flags = tcp->th_flags) &(TH_FIN|TH_SYN|TH_RST|TH_PUSH|TH_ACK|TH_URG|TH_ECE|TH_CWR)) {
         printf("CAPA 4 TCP-> sequencia: 0x%x ack: 0x%x flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+         printf("\n OK sequencia: %d ack: %d flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+         printf("\n OK sequencia: %u ack: %u flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
         cout<<endl;
 
         if ((flags & TH_ACK) &&(flags & TH_SYN))
@@ -318,7 +320,7 @@ float calculo_time(QString hourBase, suseconds_t usecondsBase, QString hourNew, 
     cout<<"nuevo "<<tnuevo.toStdString()<<endl;
    /* cout<<"base en float"<<tnuevo.toDouble()<<endl;
     cout<<"nuevo en float "<<tbase.toDouble()<<endl;*/
-    cout<<"diferencia en float "<<tnuevo.toDouble()-tbase.toDouble()<<endl;
+    cout<<"diferencia en float antes "<<tnuevo.toDouble()-tbase.toDouble()<<endl;
 
     return tnuevo.toDouble()-tbase.toDouble() < 0 ? tnuevo.toDouble()-tbase.toDouble()+1 :tnuevo.toDouble()-tbase.toDouble() ;
 
