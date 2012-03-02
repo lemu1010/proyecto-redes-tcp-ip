@@ -226,6 +226,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
             cout<<"SYN+ACK"<<endl;
             cout<<"ID: "<<ip->ip_id<<endl;
             cout<<"VENTANA="<<tcp->th_win<<endl;
+            printf("VENTANA TAM1 = %u \n",tcp->th_win);
+            printf("VENTANA TAM2 = %d \n",tcp->th_win);
             cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
             cout<<"numero seq="<<tcp->th_seq<<endl;
             cout<<"bit ack="<<TH_FLAGS<<endl;
@@ -262,15 +264,87 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         }
 
         cout<<endl;
+
     }
 
     //------------------------------fin LOQUEANDO JJ------------------------------------
+
+    //------------ FLAGS TCP --------------//
+    cout << "FLAGS TCP" << endl;
+    int ack = 0;
+    int syn = 0;
+    int push = 0;
+    int fin = 0;
+    int rst = 0;
+    int cwr = 0;
+    int ece = 0;
+    int urg = 0;
+
+    if( tcp->th_flags & TH_ACK ) {
+        ack = 1;
+        cout << "ACK = " << ack << endl;
+    }
+    else
+        cout << "ACK = " << ack << endl;
+
+    if( tcp->th_flags & TH_SYN ) {
+        syn = 1;
+        cout << "SYN = " << syn << endl;
+    }
+    else
+        cout << "SYN = " << syn << endl;
+
+    if( tcp->th_flags & TH_PUSH ) {
+        push = 1;
+        cout << "PUSH = " << push << endl;
+    }
+    else
+        cout << "PUSH = " << push << endl;
+
+    if( tcp->th_flags & TH_FIN ) {
+        fin = 1;
+        cout << "FIN = " << fin << endl;
+    }
+    else
+        cout << "FIN = " << fin << endl;
+
+    if( tcp->th_flags & TH_RST ) {
+        rst = 1;
+        cout << "RST = " << rst << endl;
+    }
+    else
+        cout << "RST = " << rst << endl;
+
+    if( tcp->th_flags & TH_CWR ) {
+        cwr = 1;
+        cout << "CWR = " << cwr << endl;
+    }
+    else
+        cout << "CWR = " << cwr << endl;
+
+    if( tcp->th_flags & TH_ECE ) {
+        ece = 1;
+        cout << "ECE = " << ece << endl;
+    }
+    else
+        cout << "ECE = " << ece << endl;
+
+    if( tcp->th_flags & TH_URG ) {
+        urg = 1;
+        cout << "URG = " << urg << endl;
+    }
+    else
+        cout << "URG = " << urg << endl;
+
+    cout << endl;
+    //------------------------------------//
+
 
     //----- NAME PACKET -----//
 
     string namePacket;
 
-    if( (tcp->th_flags & TH_ACK) )
+    if( tcp->th_flags & TH_ACK  )
         namePacket = "ack";
     else
         namePacket = "tcp";
@@ -281,6 +355,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     string eventType = "x";
     string banderas = "-------";
 
+    float timeEncolado = 0.020000;
+
     /*static time_t timeSecBase = ltime->tm_sec;*/
     static suseconds_t timeUSecBase = header->ts.tv_usec;
     static QString timeHourBase(timestr);
@@ -288,15 +364,43 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     suseconds_t timeUSecNew = header->ts.tv_usec;
     QString  timeHourNew(timestr);
     float diff = calculo_time(timeHourBase,timeUSecBase,timeHourNew,timeUSecNew);
-
-    cout<<"-------------------------------"<<endl;
     cout<<"diferencia "<<diff<<endl;
 
-    trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
-    trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << ip->ip_len << " ";
-    trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
-    trace << tcp->th_win << " " << tcp->th_seq << " " << ip->ip_id << endl;
+    cout<<"-------------------------------"<<endl;
 
+    if( (syn == 1) && (ack == 0) ) {
+        eventType = "+";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
+        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+
+        eventType = "-";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
+        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+    }
+    else if( (syn == 1) && (ack == 1) ) {
+        eventType = "+";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
+        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+
+        eventType = "-";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
+        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+    }
+    else{
+        eventType = "x";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
+        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+    }
 
     return;
 }
@@ -335,7 +439,9 @@ int main(int argc, char *argv[])
     //w.capture_device();
     //w.show();
 
-    char *dev ="eth1"; //NULL;			/* capture device name */
+    //char *dev ="wlan0"; //NULL;			/* capture device name */
+    //char *dev ="eth1"; //NULL;			/* capture device name */
+    char *dev ="eth0";
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
