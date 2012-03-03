@@ -219,7 +219,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         printf("CAPA 4 TCP-> sequencia: 0x%x ack: 0x%x flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
          printf("\n OK sequencia: %d ack: %d flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
          printf("\n OK sequencia: %u ack: %u flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
-        cout<<endl;
+         printf("\n Tam packet: %d", header->len);
+         printf("\n Tam Header Ethernet: %d", SIZE_ETHERNET);
+         printf("\n Tam Header ip: %d", size_ip);
+         printf("\n Tam Header tcp: %d", size_tcp);
+         printf("\n OK next secuencia: %u",ntohl(tcp->th_seq) + (header->len - SIZE_ETHERNET - size_ip - size_tcp + 1));
+
+         cout<<endl;
 
         if ((flags & TH_ACK) &&(flags & TH_SYN))
         {
@@ -437,11 +443,11 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     //w.capture_device();
-    //w.show();
+    w.show();
 
-    //char *dev ="wlan0"; //NULL;			/* capture device name */
+    char *dev ="wlan0"; //NULL;			/* capture device name */
     //char *dev ="eth1"; //NULL;			/* capture device name */
-    char *dev ="eth0";
+    //char *dev ="eth1";
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
