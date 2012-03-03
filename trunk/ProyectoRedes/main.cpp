@@ -169,16 +169,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     printf("       From: %s\n", inet_ntoa(ip->ip_src));
     printf("         To: %s\n", inet_ntoa(ip->ip_dst));
 
-    numSrcIP=new QString(inet_ntoa(ip->ip_src));
 
-    if(!hashNodos.contains(*numSrcIP))
-        hashNodos.insert(*numSrcIP,++countNodes);
-
-
-    numTgtIP=new QString(inet_ntoa(ip->ip_dst));
-
-    if(!hashNodos.contains(*numTgtIP))
-        hashNodos.insert(*numTgtIP,++countNodes);
 
     /* determine protocol */
     switch(ip->ip_p) {
@@ -210,6 +201,22 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     printf("   Src port: %d\n", ntohs(tcp->th_sport));
     printf("   Dst port: %d\n", ntohs(tcp->th_dport));
 
+    numSrcIP=new QString(inet_ntoa(ip->ip_src));
+    numSrcIP->append(ntohs(tcp->th_sport));
+    qDebug()<<numSrcIP;
+
+    if(!hashNodos.contains(*numSrcIP))
+        hashNodos.insert(*numSrcIP,++countNodes);
+
+
+
+    numTgtIP=new QString(inet_ntoa(ip->ip_dst));
+    numTgtIP->append(ntohs(tcp->th_dport));
+    qDebug()<<numTgtIP;
+
+    if(!hashNodos.contains(*numTgtIP))
+        hashNodos.insert(*numTgtIP,++countNodes);
+
 
     //------------------------------LOQUEANDO JJ------------------------------------
 
@@ -223,7 +230,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
          printf("\n Tam Header Ethernet: %d", SIZE_ETHERNET);
          printf("\n Tam Header ip: %d", size_ip);
          printf("\n Tam Header tcp: %d", size_tcp);
-         printf("\n OK next secuencia: %u",ntohl(tcp->th_seq) + (header->len - SIZE_ETHERNET - size_ip - size_tcp + 1));
+         printf("\n OK next secuencia: %u",ntohl(tcp->th_seq) + (header->len - SIZE_ETHERNET - size_ip - size_tcp ));
 
          cout<<endl;
 
@@ -388,6 +395,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
     }
     else if( (syn == 1) && (ack == 1) ) {
+
+        eventType = "r";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numTgtIP) << " ";
+        trace << hashNodos.value(*numSrcIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " <<  htons(tcp->th_dport) << " " <<htons(tcp->th_sport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+
         eventType = "+";
         trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
         trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
@@ -400,8 +414,20 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
         trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
     }
-    else{
-        eventType = "x";
+    else if( ack==1 ) {
+        eventType = "r";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numTgtIP) << " ";
+        trace << hashNodos.value(*numSrcIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " <<  htons(tcp->th_dport) << " " <<htons(tcp->th_sport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+
+        eventType = "+";
+        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
+        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
+        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
+        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
+
+        eventType = "-";
         trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
         trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
         trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
@@ -445,9 +471,14 @@ int main(int argc, char *argv[])
     //w.capture_device();
     w.show();
 
-    char *dev ="wlan0"; //NULL;			/* capture device name */
+    //char *dev ="wlan0"; //NULL;			/* capture device name */
+
+    char *dev ="eth1"; //NULL;			/* capture device name */
+    //char *dev ="eth0";
+
     //char *dev ="eth1"; //NULL;			/* capture device name */
     //char *dev ="eth1";
+
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
     pcap_t *handle;				/* packet capture handle */
