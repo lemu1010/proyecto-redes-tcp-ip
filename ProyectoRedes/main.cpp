@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <fstream>
+#include <conexion.h>
 
 using namespace std;
 
@@ -144,13 +145,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
 
     /* print timestamp and length of the packet */
-    cout<<"\n-------------------------------"<<endl;
+
+    printf("\n------------------------------Packet number %d:------------------------------\n", countPacket);
     printf("Tiempo : %s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
 
-    static QHash<QString,int> hashNodos;
-    QString *numSrcIP,*numTgtIP;
 
-    printf("\nPacket number %d:\n", countPacket);
+
+
     countPacket++;
 
     /* define ethernet header */
@@ -201,9 +202,17 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     printf("   Src port: %d\n", ntohs(tcp->th_sport));
     printf("   Dst port: %d\n", ntohs(tcp->th_dport));
 
+
+//--------------------------------------------USANDO LAS HASH---------------------------------------
+
+    static QHash<QString,int> hashNodos;
+    static QHash<QString,Conexion> hashConexiones;
+    QString *numSrcIP,*numTgtIP;
+    QString nodo1,nodo2;
+
     numSrcIP=new QString(inet_ntoa(ip->ip_src));
     numSrcIP->append(ntohs(tcp->th_sport));
-    qDebug()<<numSrcIP;
+   // qDebug()<<numSrcIP;
 
     if(!hashNodos.contains(*numSrcIP))
         hashNodos.insert(*numSrcIP,++countNodes);
@@ -212,71 +221,93 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     numTgtIP=new QString(inet_ntoa(ip->ip_dst));
     numTgtIP->append(ntohs(tcp->th_dport));
-    qDebug()<<numTgtIP;
+  //  qDebug()<<numTgtIP;
 
     if(!hashNodos.contains(*numTgtIP))
         hashNodos.insert(*numTgtIP,++countNodes);
 
+    nodo1=QString::number(hashNodos.value(*numSrcIP));
+    nodo2=QString::number(hashNodos.value(*numTgtIP));
 
+    if(!hashConexiones.contains(nodo1+nodo2)&&!hashConexiones.contains(nodo2+nodo1))
+      {
+
+        cout<<"insertara esta conexion con clave "<<(nodo1+nodo2).toStdString()<<endl;
+        Conexion nuevaConexion(nodo1.toInt(),nodo2.toInt(),hashConexiones.size()+1);
+        hashConexiones.insert(nodo1+nodo2,nuevaConexion);
+       }
+
+    Conexion conexionFalsa(-1,-1,-1);
+
+    Conexion    conexionActual    = hashConexiones.value(nodo1+nodo2,conexionFalsa);
+
+     if(conexionActual.getNumeroConexion()==-1)
+          conexionActual= hashConexiones.value(nodo2+nodo1,conexionFalsa);
+
+     if(conexionActual.getNumeroConexion()==-1)
+         exit(0);
     //------------------------------LOQUEANDO JJ------------------------------------
 
     u_char flags;
 
     if ((flags = tcp->th_flags) &(TH_FIN|TH_SYN|TH_RST|TH_PUSH|TH_ACK|TH_URG|TH_ECE|TH_CWR)) {
         printf("CAPA 4 TCP-> sequencia: 0x%x ack: 0x%x flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
-         printf("\n OK sequencia: %d ack: %d flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
-         printf("\n OK sequencia: %u ack: %u flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+      //   printf("\n OK sequencia: %d ack: %d flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+         printf("\n OK sequencia: %u ack: %u ",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+         printf("\n OK next secuencia: %u",ntohl(tcp->th_seq) + (header->len - SIZE_ETHERNET - size_ip - size_tcp ));
          printf("\n Tam packet: %d", header->len);
          printf("\n Tam Header Ethernet: %d", SIZE_ETHERNET);
          printf("\n Tam Header ip: %d", size_ip);
          printf("\n Tam Header tcp: %d", size_tcp);
-         printf("\n OK next secuencia: %u",ntohl(tcp->th_seq) + (header->len - SIZE_ETHERNET - size_ip - size_tcp ));
-
+         printf("\nVENTANA TAM = %u \n",tcp->th_win);
+         printf("Esta conexion es la numero= %d\n",conexionActual.getNumeroConexion());
+         cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
+         cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
+         cout<<"ID: "<<ip->ip_id<<endl;
          cout<<endl;
 
-        if ((flags & TH_ACK) &&(flags & TH_SYN))
-        {
-            cout<<"SYN+ACK"<<endl;
-            cout<<"ID: "<<ip->ip_id<<endl;
-            cout<<"VENTANA="<<tcp->th_win<<endl;
-            printf("VENTANA TAM1 = %u \n",tcp->th_win);
-            printf("VENTANA TAM2 = %d \n",tcp->th_win);
-            cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
-            cout<<"numero seq="<<tcp->th_seq<<endl;
-            cout<<"bit ack="<<TH_FLAGS<<endl;
-            cout<<"numero ack="<<tcp->th_ack<<endl;
+//        if ((flags & TH_ACK) &&(flags & TH_SYN))
+//        {
+//            cout<<"SYN+ACK"<<endl;
 
-            //------------------------------------
-            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
-        }
-        if ((flags & TH_SYN)and not((flags & TH_ACK)))
-        {
-            cout<<"SYN"<<endl;
-            cout<<"ID: "<<ip->ip_id<<endl;
-            cout<<"VENTANA="<<tcp->th_win<<endl;
-            cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
-            cout<<"numero seq="<<tcp->th_seq<<endl;
-            cout<<"bit ack="<<TH_FLAGS<<endl;
-            cout<<"numero ack="<<tcp->th_ack<<endl;
+//           // cout<<"VENTANA="<<tcp->th_win<<endl;
 
-            //------------------------------------
-            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
-        }
-        if ((flags & TH_ACK)and not((flags & TH_SYN)) )
-        {
-            cout<<"ACK"<<endl;
-            cout<<"ID: "<<ip->ip_id<<endl;
-            cout<<"VENTANA="<<tcp->th_win<<endl;
-            cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
-            cout<<"numero seq="<<tcp->th_seq<<endl;
-            cout<<"bit ack="<<TH_FLAGS<<endl;
-            cout<<"numero ack="<<tcp->th_ack<<endl;
+//            //printf("VENTANA TAM2 = %d \n",tcp->th_win);
 
-            //------------------------------------
-            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
-        }
+//          //  cout<<"numero seq="<<tcp->th_seq<<endl;
+//          //  cout<<"bit ack="<<TH_FLAGS<<endl;
+//           // cout<<"numero ack="<<tcp->th_ack<<endl;
 
-        cout<<endl;
+//            //------------------------------------
+//            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
+//        }
+//        if ((flags & TH_SYN)and not((flags & TH_ACK)))
+//        {
+//            cout<<"SYN"<<endl;
+//           // cout<<"ID: "<<ip->ip_id<<endl;
+//           // cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
+//          //  cout<<"VENTANA="<<tcp->th_win<<endl;
+
+//           // cout<<"numero seq="<<tcp->th_seq<<endl;
+//           // cout<<"bit ack="<<TH_FLAGS<<endl;
+//           // cout<<"numero ack="<<tcp->th_ack<<endl
+
+//        }
+//        if ((flags & TH_ACK)and not((flags & TH_SYN)) )
+//        {
+//            cout<<"ACK"<<endl;
+//            //cout<<"ID: "<<ip->ip_id<<endl;
+//            //cout<<"VENTANA="<<tcp->th_win<<endl;
+//           // cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
+//           // cout<<"numero seq="<<tcp->th_seq<<endl;
+//          //  cout<<"bit ack="<<TH_FLAGS<<endl;
+//           // cout<<"numero ack="<<tcp->th_ack<<endl;
+
+//            //------------------------------------
+//            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
+//        }
+
+//        cout<<endl;
 
     }
 
@@ -377,9 +408,9 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     suseconds_t timeUSecNew = header->ts.tv_usec;
     QString  timeHourNew(timestr);
     float diff = calculo_time(timeHourBase,timeUSecBase,timeHourNew,timeUSecNew);
-    cout<<"diferencia "<<diff<<endl;
+    cout<<"tiempo "<<diff<<endl;
 
-    cout<<"-------------------------------"<<endl;
+
 
     if( (syn == 1) && (ack == 0) ) {
         eventType = "+";
