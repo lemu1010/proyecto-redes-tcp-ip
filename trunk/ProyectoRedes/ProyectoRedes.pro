@@ -12,9 +12,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
+    conexion.cpp
 
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    conexion.h
 
 FORMS    += mainwindow.ui
 
