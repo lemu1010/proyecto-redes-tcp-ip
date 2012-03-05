@@ -410,15 +410,23 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     /*static time_t timeSecBase = ltime->tm_sec;*/
     static suseconds_t timeUSecBase = header->ts.tv_usec;
+
     static QString timeHourBase(timestr);
 
     suseconds_t timeUSecNew = header->ts.tv_usec;
     QString  timeHourNew(timestr);
     float diff = calculo_time(timeHourBase,timeUSecBase,timeHourNew,timeUSecNew);
-    cout<<"tiempo "<<diff<<endl;
+    cout<<"tiempo de funcion "<<diff<<endl;
+    //---------------------------LOQUEANDO PARTE 2--------------------------------------------------
+    static double tiempoBase=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
+    double tiempoNuevo=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
+    double deltaTiempo=tiempoNuevo-tiempoBase;
+    cout<<"tiempo de codigo loco"<<deltaTiempo<<endl;
+    printf("%.16g segundos\n",deltaTiempo);// secs * 1000.0);
 
-
-
+    cout<<"tv_sec"<<header->ts.tv_sec<<endl;
+   cout<<"tv_usec"<<header->ts.tv_usec<<endl;
+ //------------------------------TERMINA LOQUEANDO PARTE 2-------------------------------------------
     if( (syn == 1) && (ack == 0) ) {
         eventType = "+";
         trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
