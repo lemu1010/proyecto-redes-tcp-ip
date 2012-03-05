@@ -144,16 +144,16 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     ltime = localtime(&local_tv_sec);
     strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
 
-    /* print timestamp and length of the packet */
+
 
     printf("\n------------------------------Packet number %d:------------------------------\n", countPacket);
-    printf("Tiempo : %s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
+    printf("Tiempo : %s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);       /* print timestamp and length of the packet */
 
 
 
 
     countPacket++;
-
+//------------------------------------------Extraemos Todas las cabeceras para ser procesadas-----------------------
     /* define ethernet header */
     ethernet = (struct sniff_ethernet*)(packet);
 
@@ -166,9 +166,6 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         return;
     }
 
-    /* print source and destination IP addresses */
-    printf("       From: %s\n", inet_ntoa(ip->ip_src));
-    printf("         To: %s\n", inet_ntoa(ip->ip_dst));
 
 
 
@@ -199,6 +196,12 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         return;
     }
 
+//--------------------------------------------Imprimiendo 4tupla----------------------------------------------------
+    /* print source and destination IP addresses */
+    printf("   From: %s\n", inet_ntoa(ip->ip_src));
+    printf("   To: %s\n", inet_ntoa(ip->ip_dst));
+
+    /* print source and destination PORT */
     printf("   Src port: %d\n", ntohs(tcp->th_sport));
     printf("   Dst port: %d\n", ntohs(tcp->th_dport));
 
@@ -212,7 +215,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     numSrcIP=new QString(inet_ntoa(ip->ip_src));
     numSrcIP->append(ntohs(tcp->th_sport));
-   // qDebug()<<numSrcIP;
+
 
     if(!hashNodos.contains(*numSrcIP))
         hashNodos.insert(*numSrcIP,++countNodes);
@@ -221,7 +224,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     numTgtIP=new QString(inet_ntoa(ip->ip_dst));
     numTgtIP->append(ntohs(tcp->th_dport));
-  //  qDebug()<<numTgtIP;
+
 
     if(!hashNodos.contains(*numTgtIP))
         hashNodos.insert(*numTgtIP,++countNodes);
@@ -251,63 +254,67 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     u_char flags;
 
     if ((flags = tcp->th_flags) &(TH_FIN|TH_SYN|TH_RST|TH_PUSH|TH_ACK|TH_URG|TH_ECE|TH_CWR)) {
-        printf("CAPA 4 TCP-> sequencia: 0x%x ack: 0x%x flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
-      //   printf("\n OK sequencia: %d ack: %d flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+
+         printf("CAPA 4 TCP-> sequencia: 0x%x ack: 0x%x flags:",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
          printf("\n OK sequencia: %u ack: %u ",ntohl(tcp->th_seq), ntohl(tcp->th_ack));
          printf("\n OK next secuencia: %u",ntohl(tcp->th_seq) + (header->len - SIZE_ETHERNET - size_ip - size_tcp ));
          printf("\n Tam packet: %d", header->len);
          printf("\n Tam Header Ethernet: %d", SIZE_ETHERNET);
          printf("\n Tam Header ip: %d", size_ip);
          printf("\n Tam Header tcp: %d", size_tcp);
+         printf("\n Tam DATA tcp: %u", (header->len - SIZE_ETHERNET - size_ip - size_tcp ));
          printf("\nVENTANA TAM = %u \n",tcp->th_win);
          printf("Esta conexion es la numero= %d\n",conexionActual.getNumeroConexion());
          cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
          cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
          cout<<"ID: "<<ip->ip_id<<endl;
+         printf("ID unsigned:%hu \n",ip->ip_id);
          cout<<endl;
 
-//        if ((flags & TH_ACK) &&(flags & TH_SYN))
-//        {
-//            cout<<"SYN+ACK"<<endl;
+         bool nodata=(header->len - SIZE_ETHERNET - size_ip - size_tcp )==0;
 
-//           // cout<<"VENTANA="<<tcp->th_win<<endl;
+         if(nodata)
+         {
+             cout<<"NO DATA ";
+         }
 
-//            //printf("VENTANA TAM2 = %d \n",tcp->th_win);
+        if ((flags & TH_ACK) &&(flags & TH_SYN))
+        {
+            cout<<"SYN+ACK"<<endl;
 
-//          //  cout<<"numero seq="<<tcp->th_seq<<endl;
-//          //  cout<<"bit ack="<<TH_FLAGS<<endl;
-//           // cout<<"numero ack="<<tcp->th_ack<<endl;
 
-//            //------------------------------------
-//            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
-//        }
-//        if ((flags & TH_SYN)and not((flags & TH_ACK)))
-//        {
-//            cout<<"SYN"<<endl;
-//           // cout<<"ID: "<<ip->ip_id<<endl;
-//           // cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
-//          //  cout<<"VENTANA="<<tcp->th_win<<endl;
+        }
+        else if ((flags & TH_SYN)and not((flags & TH_ACK)))
+        {
+            cout<<"SYN"<<endl;
 
-//           // cout<<"numero seq="<<tcp->th_seq<<endl;
-//           // cout<<"bit ack="<<TH_FLAGS<<endl;
-//           // cout<<"numero ack="<<tcp->th_ack<<endl
+        }
 
-//        }
-//        if ((flags & TH_ACK)and not((flags & TH_SYN)) )
-//        {
-//            cout<<"ACK"<<endl;
-//            //cout<<"ID: "<<ip->ip_id<<endl;
-//            //cout<<"VENTANA="<<tcp->th_win<<endl;
-//           // cout<<"nodo fuente: "<<hashNodos.value(*numSrcIP)<<endl;
-//           // cout<<"numero seq="<<tcp->th_seq<<endl;
-//          //  cout<<"bit ack="<<TH_FLAGS<<endl;
-//           // cout<<"numero ack="<<tcp->th_ack<<endl;
 
-//            //------------------------------------
-//            cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
-//        }
+        else if ((flags & TH_PUSH)and ((flags & TH_ACK)) )
+        {
+            cout<<"PUSH+ACK"<<endl;
 
-//        cout<<endl;
+        }
+        else if ((flags & TH_FIN)and not((flags & TH_ACK)) )
+        {
+            cout<<"FIN"<<endl;
+
+        }
+       else  if ((flags & TH_FIN)and ((flags & TH_ACK)) )
+        {
+            cout<<"FIN+ACK"<<endl;
+
+        }
+        else if ((flags & TH_ACK))
+        {
+            cout<<"ACK "<<endl;
+
+        }
+        else
+            cout<<"EN IF NO HAY UNA BANDERA CONSIDERADA"<<endl;
+
+
 
     }
 
@@ -477,6 +484,8 @@ float calculo_time(QString hourBase, suseconds_t usecondsBase, QString hourNew, 
 
     secondsBasef=hourBase.section(":",0,0).toInt()*3600+hourBase.section(":",1,1).toInt()*60+hourBase.section(":",2,2).toInt();
     secondsNewf=hourNew.section(":",0,0).toInt()*3600+hourNew.section(":",1,1).toInt()*60+hourNew.section(":",2,2).toInt();
+
+//    SI desea entender mejor estas lineas descomente lo siguiente y vea salida por consola
 //    cout<<"HORA BASE"<<hourBase.section(":",1,1).toStdString()<<endl;
 //    cout<<"MIN BASE"<<hourBase.section(":",2,2).toStdString()<<endl;
 //    cout<<"SEC BASE"<<hourBase.section(":",3,3).toStdString()<<endl;
@@ -485,9 +494,7 @@ float calculo_time(QString hourBase, suseconds_t usecondsBase, QString hourNew, 
     tnuevo=  QString::number(secondsNewf).append(".").append(QString::number(usecondsNew));
     cout<<"base "<<tbase.toStdString()<<endl;
     cout<<"nuevo "<<tnuevo.toStdString()<<endl;
-   /* cout<<"base en float"<<tnuevo.toDouble()<<endl;
-    cout<<"nuevo en float "<<tbase.toDouble()<<endl;*/
-    cout<<"diferencia en float antes "<<tnuevo.toDouble()-tbase.toDouble()<<endl;
+    cout<<"diferencia en float antes de retorno"<<tnuevo.toDouble()-tbase.toDouble()<<endl;
 
     return tnuevo.toDouble()-tbase.toDouble() < 0 ? tnuevo.toDouble()-tbase.toDouble()+1 :tnuevo.toDouble()-tbase.toDouble() ;
 
@@ -503,12 +510,11 @@ int main(int argc, char *argv[])
     w.show();
 
     //char *dev ="wlan0"; //NULL;			/* capture device name */
-
-    char *dev ="eth1"; //NULL;			/* capture device name */
     //char *dev ="eth0";
+    char *dev ="eth1"; //NULL;			/* capture device name */
 
-    //char *dev ="eth1"; //NULL;			/* capture device name */
-    //char *dev ="eth1";
+
+
 
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
