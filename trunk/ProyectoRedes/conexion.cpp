@@ -1,36 +1,56 @@
 #include "conexion.h"
+/*
 
+    int nodoCliente;
+    int nodoServidor;
+    unsigned int ultimoACK;
+    unsigned int ultimoSeqEnviado;
+    int numeroConexion;
+
+
+
+public:
+    Conexion();
+    Conexion(int,int,int);
+    void setnodoCliente(int );
+    void setnodoServidor(int );
+    void setNumeroConexion(int);
+    int  getnodoCliente();
+    int  getnodoServidor();
+    int  getNumeroConexion();
+
+*/
 Conexion::Conexion()
 {
-    nodo1=-1;
-    nodo2=-1;
+    nodoCliente=-1;
+    nodoServidor=-1;
 }
-Conexion::Conexion(int nodo1,int nodo2, int nuemeroConexion)
+Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion)
 {
-    this->nodo1=nodo1;
-    this->nodo2=nodo2;
+    this->nodoCliente=nodoCliente;
+    this->nodoServidor=nodoServidor;
     this->numeroConexion=nuemeroConexion;
 
 }
 
-void Conexion::setnodo1(int nodo1)
+void Conexion::setNodoCliente(int nodoCliente)
 {
-    this->nodo1=nodo1;
+    this->nodoCliente=nodoCliente;
 }
 
-void Conexion::setnodo2(int nodo2 )
+void Conexion::setNodoServidor(int nodoServidor )
 {
-    this->nodo2=nodo2;
+    this->nodoServidor=nodoServidor;
 }
 
-int  Conexion::getnodo1()
+int  Conexion::getNodoCliente()
 {
-    return (nodo1);
+    return (nodoCliente);
 }
 
-int  Conexion::getnodo2()
+int  Conexion::getNodoServidor()
 {
-    return(nodo2);
+    return(nodoServidor);
 }
 
 void Conexion:: setNumeroConexion(int numeroConexion)
