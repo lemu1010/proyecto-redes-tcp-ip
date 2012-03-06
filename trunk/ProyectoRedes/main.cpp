@@ -13,7 +13,7 @@ using namespace std;
 
 fstream trace("../ProyectoRedes/trazaReal.tr",ios::out);
 
-float calculo_time(QString hourBase, suseconds_t usecondsBase, QString hourNew, suseconds_t usecondsNew);
+float calculo_time(const struct pcap_pkthdr *header);
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
@@ -408,26 +408,11 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     float timeEncolado = 0.020000;
 
-    /*static time_t timeSecBase = ltime->tm_sec;*/
-    static suseconds_t timeUSecBase = header->ts.tv_usec;
 
-    static QString timeHourBase(timestr);
-
-    suseconds_t timeUSecNew = header->ts.tv_usec;
-    QString  timeHourNew(timestr);
-    float diff = calculo_time(timeHourBase,timeUSecBase,timeHourNew,timeUSecNew);
+    float diff = calculo_time(header);
     cout<<"tiempo de funcion "<<diff<<endl;
 
-    //---------------------------LOQUEANDO PARTE 2(que estupidez era)--------------------------------------------------
-    static double tiempoBase=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
-    double tiempoNuevo=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
-    double deltaTiempo=tiempoNuevo-tiempoBase;
-    cout<<"tiempo de codigo loco"<<deltaTiempo<<endl;
-    printf("%.16g segundos\n",deltaTiempo);// secs * 1000.0);
 
-    cout<<"tv_sec"<<header->ts.tv_sec<<endl;
-   cout<<"tv_usec"<<header->ts.tv_usec<<endl;
- //------------------------------TERMINA LOQUEANDO PARTE 2-------------------------------------------
 
     if( (syn == 1) && (ack == 0) ) {
         eventType = "+";
@@ -485,29 +470,16 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     return;
 }
 
-float calculo_time(QString hourBase, suseconds_t usecondsBase, QString hourNew, suseconds_t usecondsNew)
+float calculo_time(const struct pcap_pkthdr *header)
 {
 
-    QString tbase,tnuevo;
-    int secondsBasef,secondsNewf;
+    static double tiempoBase=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
+    double tiempoNuevo=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
 
 
-    secondsBasef=hourBase.section(":",0,0).toInt()*3600+hourBase.section(":",1,1).toInt()*60+hourBase.section(":",2,2).toInt();
-    secondsNewf=hourNew.section(":",0,0).toInt()*3600+hourNew.section(":",1,1).toInt()*60+hourNew.section(":",2,2).toInt();
+    printf("tiempo con printf %.16g segundos\n",tiempoNuevo-tiempoBase);
 
-//    SI desea entender mejor estas lineas descomente lo siguiente y vea salida por consola
-//    cout<<"HORA BASE"<<hourBase.section(":",1,1).toStdString()<<endl;
-//    cout<<"MIN BASE"<<hourBase.section(":",2,2).toStdString()<<endl;
-//    cout<<"SEC BASE"<<hourBase.section(":",3,3).toStdString()<<endl;
-
-    tbase = QString::number(secondsBasef).append(".").append(QString::number(usecondsBase));
-    tnuevo=  QString::number(secondsNewf).append(".").append(QString::number(usecondsNew));
-    cout<<"base "<<tbase.toStdString()<<endl;
-    cout<<"nuevo "<<tnuevo.toStdString()<<endl;
-    cout<<"diferencia en float antes de retorno"<<tnuevo.toDouble()-tbase.toDouble()<<endl;
-
-    return tnuevo.toDouble()-tbase.toDouble() < 0 ? tnuevo.toDouble()-tbase.toDouble()+1 :tnuevo.toDouble()-tbase.toDouble() ;
-
+   return tiempoNuevo-tiempoBase;
 }
 
 
