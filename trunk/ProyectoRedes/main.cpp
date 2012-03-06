@@ -249,6 +249,9 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
      if(conexionActual.getNumeroConexion()==-1)
          exit(0);
+     //-----------------------------CODIGO DE CLASE---------------------------------------
+     conexionActual.evaluarNuevoPaquete(header,packet);
+
     //------------------------------LOQUEANDO JJ------------------------------------
 
     u_char flags;
@@ -493,7 +496,7 @@ int main(int argc, char *argv[])
 
     //char *dev ="wlan0"; //NULL;			/* capture device name */
     //char *dev ="eth0";
-    char *dev ="eth1"; //NULL;			/* capture device name */
+    char *dev ="eth2"; //NULL;			/* capture device name */
 
 
 

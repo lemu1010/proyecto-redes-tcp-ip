@@ -2,6 +2,13 @@
 #define CONEXION_H
 #include <QList>
 #include <mainwindow.h>
+#include <struct.h>
+
+struct Packet
+{
+     double tiempo;
+     const u_char *packet;
+};
 
 class Conexion
 {
@@ -13,10 +20,14 @@ class Conexion
     unsigned int ultimoSeqEnviado;
     int numeroConexion;
 
-     /*Estructuras que guardaran paquetes que fueron emitidos por un nodo hasta recibir confirmacion*/
-     /*tuplas (ID_packet,packet)*/
-     QHash<u_short,const u_char *> hashPacketCliente;
-     QHash<u_short,const u_char *> hashPacketServidor;
+
+     /*lista que contiene los paquetes aun no confirmados de cada nodo*/
+     QList <Packet>listaPaqCliente;
+     QList <Packet>listaPaqEmisor;
+
+     /*lista con numeros de confirmacion*/
+     QList <unsigned int> listaConfirmaciones;
+
 
 public:
     Conexion();
@@ -27,7 +38,8 @@ public:
     int  getNodoCliente();
     int  getNodoServidor();
     int  getNumeroConexion();
-
+    void evaluarNuevoPaquete(const struct pcap_pkthdr *,const u_char *);
+    double calculo_time(const struct pcap_pkthdr *);
 
 };
 
