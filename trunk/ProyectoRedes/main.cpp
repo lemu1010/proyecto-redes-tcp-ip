@@ -417,7 +417,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     QString  timeHourNew(timestr);
     float diff = calculo_time(timeHourBase,timeUSecBase,timeHourNew,timeUSecNew);
     cout<<"tiempo de funcion "<<diff<<endl;
-    //---------------------------LOQUEANDO PARTE 2--------------------------------------------------
+
+    //---------------------------LOQUEANDO PARTE 2(que estupidez era)--------------------------------------------------
     static double tiempoBase=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
     double tiempoNuevo=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
     double deltaTiempo=tiempoNuevo-tiempoBase;
@@ -427,6 +428,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     cout<<"tv_sec"<<header->ts.tv_sec<<endl;
    cout<<"tv_usec"<<header->ts.tv_usec<<endl;
  //------------------------------TERMINA LOQUEANDO PARTE 2-------------------------------------------
+
     if( (syn == 1) && (ack == 0) ) {
         eventType = "+";
         trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
