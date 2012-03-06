@@ -61,3 +61,10 @@ int Conexion:: getNumeroConexion()
 {
     return(this->numeroConexion);
 }
+
+bool Conexion::evaluarNuevoPaquete(const u_char *)
+{
+
+}
+
+
