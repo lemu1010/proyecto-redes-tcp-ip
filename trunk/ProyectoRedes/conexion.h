@@ -5,13 +5,9 @@
 #include <struct.h>
 #include <iostream>
 #include <fstream>
+#include <packet.h>
 using namespace std;
 
-struct Packet
-{
-     double tiempo;
-     const u_char *packet;
-};
 
 class Conexion
 {
@@ -31,11 +27,6 @@ class Conexion
      QList <Packet>listaPaqCliente;
      QList <Packet>listaPaqServidor;
 
-     /*lista con numeros de confirmacion*/
-     QList <unsigned int> listaConfirmCliente;
-     QList <unsigned int> listaConfirmServidor;
-
-
 public:
     Conexion();
     Conexion(int,int,int);
@@ -45,8 +36,8 @@ public:
     int  getNodoCliente();
     int  getNodoServidor();
     int  getNumeroConexion();
-    void evaluarNuevoPaquete(const struct pcap_pkthdr *,const u_char *,int ,int,fstream &);
-    double calculo_time(const struct pcap_pkthdr *);
+    void evaluarNuevoPaquete(Packet,int ,int,fstream &);
+
 
 
 };
