@@ -3,6 +3,9 @@
 #include <QList>
 #include <mainwindow.h>
 #include <struct.h>
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 struct Packet
 {
@@ -19,14 +22,18 @@ class Conexion
     unsigned int ultimoACK;
     unsigned int ultimoSeqEnviado;
     int numeroConexion;
+    int contadorPaquetes;
+    double RTTEstimado;
 
+  //  QString prueba;
 
      /*lista que contiene los paquetes aun no confirmados de cada nodo*/
      QList <Packet>listaPaqCliente;
-     QList <Packet>listaPaqEmisor;
+     QList <Packet>listaPaqServidor;
 
      /*lista con numeros de confirmacion*/
-     QList <unsigned int> listaConfirmaciones;
+     QList <unsigned int> listaConfirmCliente;
+     QList <unsigned int> listaConfirmServidor;
 
 
 public:
@@ -38,8 +45,9 @@ public:
     int  getNodoCliente();
     int  getNodoServidor();
     int  getNumeroConexion();
-    void evaluarNuevoPaquete(const struct pcap_pkthdr *,const u_char *);
+    void evaluarNuevoPaquete(const struct pcap_pkthdr *,const u_char *,int ,int,fstream &);
     double calculo_time(const struct pcap_pkthdr *);
+
 
 };
 

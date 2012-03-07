@@ -125,7 +125,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 {
 
     static int countPacket = 1;    /* packet counter */
-    static int countNodes  =0;
+    static int countNodes  =-1;
     /* declare pointers to packet headers */
     const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
     const struct sniff_ip *ip;              /* The IP header */
@@ -212,6 +212,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     static QHash<QString,Conexion> hashConexiones;
     QString *numSrcIP,*numTgtIP;
     QString nodo1,nodo2;
+    QString key;
 
     numSrcIP=new QString(inet_ntoa(ip->ip_src));
     numSrcIP->append(ntohs(tcp->th_sport));
@@ -229,8 +230,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     if(!hashNodos.contains(*numTgtIP))
         hashNodos.insert(*numTgtIP,++countNodes);
 
-    nodo1=QString::number(hashNodos.value(*numSrcIP));
-    nodo2=QString::number(hashNodos.value(*numTgtIP));
+    nodo1=QString::number(hashNodos.value(*numSrcIP));/*nodo1 sera el fuente*/
+    nodo2=QString::number(hashNodos.value(*numTgtIP));/*nodo2 sera el destino*/
 
     if(!hashConexiones.contains(nodo1+nodo2)&&!hashConexiones.contains(nodo2+nodo1))
       {
@@ -238,19 +239,22 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         cout<<"insertara esta conexion con clave "<<(nodo1+nodo2).toStdString()<<endl;
         Conexion nuevaConexion(nodo1.toInt(),nodo2.toInt(),hashConexiones.size()+1);
         hashConexiones.insert(nodo1+nodo2,nuevaConexion);
-       }
 
+       }
+    cout<<"conexion falsa"<<endl;
     Conexion conexionFalsa(-1,-1,-1);
 
     Conexion    conexionActual    = hashConexiones.value(nodo1+nodo2,conexionFalsa);
+    key=nodo1+nodo2;
 
      if(conexionActual.getNumeroConexion()==-1)
+     {
           conexionActual= hashConexiones.value(nodo2+nodo1,conexionFalsa);
-
+          key= nodo2+nodo1;
+     }
      if(conexionActual.getNumeroConexion()==-1)
          exit(0);
-     //-----------------------------CODIGO DE CLASE---------------------------------------
-     conexionActual.evaluarNuevoPaquete(header,packet);
+
 
     //------------------------------LOQUEANDO JJ------------------------------------
 
@@ -272,6 +276,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
          cout<<"nodo destino: "<<hashNodos.value(*numTgtIP)<<endl;
          cout<<"ID: "<<ip->ip_id<<endl;
          printf("ID unsigned:%hu \n",ip->ip_id);
+
          cout<<endl;
 
          bool nodata=(header->len - SIZE_ETHERNET - size_ip - size_tcp )==0;
@@ -395,29 +400,34 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
 
     //----- NAME PACKET -----//
-
+/*
     string namePacket;
 
     if( tcp->th_flags & TH_ACK  )
         namePacket = "ack";
     else
-        namePacket = "tcp";
+        namePacket = "tcp";*/
 
 
     /*********** DATA TRACE ************/
-
+/*
     string eventType = "x";
     string banderas = "-------";
 
     float timeEncolado = 0.020000;
-
+*/
 
     float diff = calculo_time(header);
     cout<<"tiempo de funcion "<<diff<<endl;
 
+    //-----------------------------CODIGO DE CLASE---------------------------------------
+   conexionActual.evaluarNuevoPaquete(header,packet,nodo1.toInt(),nodo2.toInt(),trace);
+   hashConexiones.remove(key);
+   hashConexiones.insert(key,conexionActual);
 
+  /*                IMPRIMIR EN ARCHIVO
 
-    if( (syn == 1) && (ack == 0) ) {
+   if( (syn == 1) && (ack == 0) ) {
         eventType = "+";
         trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
         trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
@@ -469,7 +479,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
         trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
     }
-
+*/
     return;
 }
 
