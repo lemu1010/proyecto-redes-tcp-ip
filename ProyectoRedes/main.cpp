@@ -421,7 +421,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     cout<<"tiempo de funcion "<<diff<<endl;
 
     //-----------------------------CODIGO DE CLASE---------------------------------------
-   conexionActual.evaluarNuevoPaquete(header,packet,nodo1.toInt(),nodo2.toInt(),trace);
+   Packet paqueteEvaluado(header,packet,nodo1.toInt(),nodo2.toInt());
+   conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),trace);
    hashConexiones.remove(key);
    hashConexiones.insert(key,conexionActual);
 

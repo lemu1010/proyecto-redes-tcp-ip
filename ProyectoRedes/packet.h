@@ -11,6 +11,7 @@ class Packet
     u_short portDestino;
     u_short id;
     u_int seq;
+    u_int numAck;
     u_short cwnd;
     double timeStamp;
     unsigned int size;
@@ -18,6 +19,14 @@ class Packet
     unsigned int nextSeq;
     int fuente;
     int destino;
+    bool FIN;
+    bool SYN;
+    bool RST;
+    bool PUSH;
+    bool ACK;
+    bool URG;
+    bool ECE;
+    bool CWR;
 
 
 public:
@@ -41,6 +50,9 @@ public:
     void    setSeq(u_int);
     u_int getSeq();
 
+    void  setNumAck(u_int numAck);
+    u_int getNumAck();
+
     void setCwnd(u_short);
     u_short getCwnd();
 
@@ -60,7 +72,17 @@ public:
     int getFuente();
 
     void setDestino(int);
-    int getDestino();
+    int  getDestino();
+
+    void setFlag(u_char flags);
+    bool getFIN();
+    bool getSYN();
+    bool getRST();
+    bool getPUSH();
+    bool getACK();
+    bool getURG();
+    bool getECE();
+    bool getCWR();
 
     double calculo_time(const struct pcap_pkthdr *);
 };

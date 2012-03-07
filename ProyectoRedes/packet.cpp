@@ -15,7 +15,7 @@ Packet::Packet(const pcap_pkthdr *header, const u_char *packet, int fuente, int 
 
     int size_ip;
     int size_tcp;
-
+    FIN=SYN=RST= PUSH= ACK= URG= ECE= CWR=false;
 
     //------------------------------------------Extraemos Todas las cabeceras para ser procesadas-----------------------
     /* define ethernet header */
@@ -48,6 +48,7 @@ Packet::Packet(const pcap_pkthdr *header, const u_char *packet, int fuente, int 
     setId(ip->ip_id);
 
     setSeq(ntohl(tcp->th_seq));
+    setNumAck(ntohl(tcp->th_ack));
     setCwnd(tcp->th_win);
     setTimeStamp(calculo_time(header));
     setSize(header->len );
@@ -59,6 +60,7 @@ Packet::Packet(const pcap_pkthdr *header, const u_char *packet, int fuente, int 
     setSizeData(tam);
     setNextSeq(nextSeq);
 
+    setFlag(tcp->th_flags);
 
 }
 
@@ -121,6 +123,16 @@ void Packet::setSeq(u_int seq)
 u_int Packet::getSeq()
 {
     return(seq);
+}
+
+void Packet::setNumAck(u_int numAck)
+{
+    this->numAck=numAck;
+}
+
+u_int Packet::getNumAck()
+{
+    return(numAck);
 }
 
 void Packet::setCwnd(u_short cwnd)
@@ -192,6 +204,82 @@ void Packet::setDestino(int destino)
 int Packet::getDestino()
 {
     return(destino);
+}
+
+void Packet::setFlag(u_char flags)
+{
+
+    /*FLAGS*/
+
+    if( flags & TH_ACK )
+        ACK=true;
+
+
+
+    if( flags & TH_SYN )
+        SYN=true;
+
+
+    if(flags & TH_PUSH )
+        PUSH=true;
+
+
+
+    if( flags & TH_FIN )
+        FIN =true;
+
+
+    if( flags & TH_RST )
+        RST = true;
+
+    if( flags & TH_CWR )
+        CWR =true;
+
+    if( flags & TH_ECE )
+        ECE =true;
+
+    if( flags & TH_URG )
+        URG=true;
+}
+
+bool Packet::getFIN()
+{
+    return(FIN);
+}
+
+bool Packet::getSYN()
+{
+    return(SYN);
+}
+
+bool Packet::getRST()
+{
+    return(RST);
+}
+
+bool Packet::getPUSH()
+{
+    return(PUSH);
+}
+
+bool Packet::getACK()
+{
+    return(ACK);
+}
+
+bool Packet::getURG()
+{
+    return(URG);
+}
+
+bool Packet::getECE()
+{
+    return(ECE);
+}
+
+bool Packet::getCWR()
+{
+    return(CWR);
 }
 
 double Packet::calculo_time(const pcap_pkthdr * header)
