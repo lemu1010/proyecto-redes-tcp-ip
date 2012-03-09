@@ -34,3 +34,6 @@ LIBS += -L/usr/lib -lpcap
 
 DEPENDPATH += /usr/include/pcap
 #DEPENDPATH += /home/antonio/lipcap-1.1.1/pcap
+
+RESOURCES += \
+    recursos.qrc

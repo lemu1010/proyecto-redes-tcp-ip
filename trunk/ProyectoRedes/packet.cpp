@@ -65,6 +65,9 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
         setNextSeq(nextSeq);
     }
 
+    if( FIN && ACK )
+        setNextSeq(nextSeq + 1);
+
     cout<<"paquete creado lo  reconocera ack"<<this->nextSeq<<endl;
     printf("ack llego %u",ntohl(tcp->th_ack));
     printf("ack guardo %u",getNumAck());

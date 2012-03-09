@@ -69,6 +69,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
     double RTT=0.0;
     cout<<"TAM="<<packet.getSizeData()<<endl;
     /*--------------------Validando paquetes ----------------------------------------*/
+    string typeFlag;
 
     if( (packet.getSYN() and not(packet.getACK() ) )  or (packet.getSizeData() > 0&& packet.getACK() ) ) {
         cout<<"SYN"<<endl;
@@ -76,17 +77,19 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
         {
             namePacket="tcp";
             eventType = "+";
+            typeFlag = packet.getSYN() ? "SYN" : "DATA";
+
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
-            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << endl;
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
 
             eventType = "-";
             double timeAux=packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:packet.getTimeStamp();
             trace << eventType << " " << timeAux << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
-            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << endl;
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << typeFlag << endl;
 
 
             listaPaqCliente.append(packet);
@@ -95,7 +98,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
     }
 
-    else  if (  (packet.getACK() ) && (packet.getSYN() )  )
+    else if (  (packet.getACK() ) && (packet.getSYN() )  )
     {
         cout<<"SYN+ACK"<<endl;
         if(fuente==nodoServidor)
@@ -128,10 +131,13 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
                 namePacket="tcp";
                 eventType = "r";
+
+                typeFlag = listaPaqCliente[i].getSizeData() > 0 ? "DATA" : "SYN";
+
                 trace << eventType << " " << RTT/2 << " " <<nodoCliente << " ";
                 trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
                 trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
-                trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << endl;
+                trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " " << typeFlag << endl;
 
                 listaPaqCliente.removeAt(i);
             }
@@ -140,19 +146,19 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << eventType << " " << RTT/2 << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId()<< endl;
+            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
 
             eventType = "-";
             trace << eventType << " " << RTT/2 << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId()<< endl;
+            trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId() << " " << "SYN+ACK" << endl;
 
             eventType = "r";
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId()<< endl;
+            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
 
 
             listaPaqServidor.append(packet);
@@ -188,19 +194,19 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
-            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << endl;
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
             eventType = "-";
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
-            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << endl;
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
             eventType = "r";
             trace << eventType << " " << packet.getTimeStamp() +RTTEstimado/2 << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
-            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << endl;
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
         }
 
         else
@@ -237,7 +243,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+RTT/2 << " " <<nodoCliente << " ";
                 trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
                 trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
-                trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << endl;
+                trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " " << "ACK PURO" << endl;
 
             }
 
@@ -246,25 +252,70 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+RTT/2 << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId()<< endl;
+            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
             eventType = "-";
             trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+RTT/2        << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId()<< endl;
+            trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId() << " " << "ACK PURO" << endl;
 
             eventType = "r";
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId()<< endl;
+            trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
             listaPaqCliente.removeAt(i);
             listaPaqServidor.append(packet);
 
 
         }
+
+    }
+
+    else if( packet.getACK() and packet.getFIN() ) {
+
+        cout<<"FYN + ACK"<<endl;
+        if( fuente == nodoCliente ) {
+
+            namePacket="tcp";
+            eventType = "+";
+            trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
+            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
+
+            eventType = "-";
+            double timeAux = packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:packet.getTimeStamp();
+            trace << eventType << " " << timeAux << " " << nodoCliente << " ";
+            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
+
+
+            listaPaqCliente.append(packet);
+
+        }
+        else {
+
+            namePacket = "ack";
+            eventType = "+";
+            trace << eventType << " " << packet.getTimeStamp() - RTTEstimado << nodoCliente << " ";
+            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN + ACK" << endl;
+
+            eventType = "-";
+            trace << eventType << " " << packet.getTimeStamp() - RTTEstimado << nodoCliente << " ";
+            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN + ACK" << endl;
+
+
+            listaPaqServidor.append(packet);
+        }
+
 
     }
 
