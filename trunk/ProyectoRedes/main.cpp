@@ -211,7 +211,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     static QHash<QString,int> hashNodos;
     static QHash<QString,Conexion> hashConexiones;
     QString *numSrcIP,*numTgtIP;
-    QString nodo1,nodo2;
+    QString nodo1,nodo2; //nodos estan compuestos de su IP + numero de Puerto
     QString key;
 
     numSrcIP=new QString(inet_ntoa(ip->ip_src));
@@ -237,7 +237,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
       {
 
         cout<<"insertara esta conexion con clave "<<(nodo1+nodo2).toStdString()<<endl;
-        Conexion nuevaConexion(nodo1.toInt(),nodo2.toInt(),hashConexiones.size()+1);
+        Conexion nuevaConexion(nodo1.toInt(),nodo2.toInt(),hashConexiones.size()+1);// una conexion compuesta de dos nodos
         hashConexiones.insert(nodo1+nodo2,nuevaConexion);
 
        }
@@ -507,7 +507,7 @@ int main(int argc, char *argv[])
 
     //char *dev ="wlan0"; //NULL;			/* capture device name */
     //char *dev ="eth0";
-    char *dev ="eth2"; //NULL;			/* capture device name */
+    char *dev ="eth1"; //NULL;			/* capture device name */
 
 
 

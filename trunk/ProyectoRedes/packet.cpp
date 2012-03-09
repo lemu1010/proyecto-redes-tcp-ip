@@ -1,5 +1,6 @@
 #include "packet.h"
-
+#include <iostream>
+using namespace std;
 Packet::Packet()
 {
 }
@@ -62,6 +63,17 @@ Packet::Packet(const pcap_pkthdr *header, const u_char *packet, int fuente, int 
 
     setFlag(tcp->th_flags);
 
+    if(SYN or (SYN && ACK))
+        setNextSeq(nextSeq+1);
+
+    else if(ACK && tam==0)
+    {
+         setNextSeq(-100);
+    }
+
+    cout<<"paquete creado lo  reconocera ack"<<this->nextSeq<<endl;
+    printf("ack llego %u",ntohl(tcp->th_ack));
+    printf("ack guardo %u",getNumAck());
 }
 
 void Packet::setIPFuente(char * IPFuente)

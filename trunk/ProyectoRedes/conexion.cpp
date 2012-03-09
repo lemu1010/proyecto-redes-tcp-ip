@@ -101,13 +101,23 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
         {
             namePacket="tcp";
             eventType = "r";
-
+            cout<<"antes tam de lista"<<listaPaqCliente.size()<<endl;
             for(i=0;i<listaPaqCliente.size();i++)
             {
-                if(listaPaqCliente[i].getNextSeq()== ntohl(packet.getNumAck()))
+                 cout<<"EN FOR siguiente seq"<<listaPaqCliente[i].getNextSeq()<<endl;
+                 printf("ack llego %u",packet.getNumAck());
+                if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
+                {
+                    cout<<"ENTRO"<<endl;
                     break;
+                 }
             }
+            cout<<"aqui salio i"<<i<<endl;
+
+            cout<<"num ack"<< ntohl(packet.getNumAck());
+            cout<<"siguiente seq"<<listaPaqCliente[i].getNextSeq()<<endl;
             RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
+            cout<<"NO"<<endl;
             RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
             cout<<"ESTIMADO: SYN"<<RTTEstimado<<endl;
 
@@ -124,19 +134,19 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             eventType = "+";
             trace << eventType << " " << RTT/2 << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
-            trace << banderas << " " << packet.getPortFuente() << " " << packet.getDestino() << " ";
+            trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId()<< endl;
 
             eventType = "-";
             trace << eventType << " " << RTT/2 << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
-            trace << banderas << " " << packet.getPortFuente() << " " << packet.getDestino() << " ";
+            trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId()<< endl;
 
             eventType = "r";
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
-            trace << banderas << " " << packet.getPortFuente() << " " << packet.getDestino() << " ";
+            trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId()<< endl;
 
 
