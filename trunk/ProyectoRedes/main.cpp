@@ -405,10 +405,10 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     cout<<"tiempo de funcion "<<diff<<endl;
 
     //-----------------------------CODIGO DE CLASE---------------------------------------
-//   Packet paqueteEvaluado(header,ip,tcp);
-//   conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),trace);
-//   hashConexiones.remove(key);
-//   hashConexiones.insert(key,conexionActual);
+   Packet paqueteEvaluado(header,ip,tcp);
+   conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),trace);
+   hashConexiones.remove(key);
+   hashConexiones.insert(key,conexionActual);
 
    cout<<"tv_sec"<<header->ts.tv_sec<<endl;
    cout<<"tv_usec"<<header->ts.tv_usec<<endl;
@@ -437,9 +437,9 @@ int main(int argc, char *argv[])
     //w.capture_device();
     w.show();
 
-    char *dev = "wlan0"; //NULL;			/* capture device name */
-    //char *dev ="eth0";
-    //char *dev ="eth1"; //NULL;			/* capture device name */
+    //char *dev = "wlan0"; //NULL;			/* capture device name */
+//    char *dev ="eth0";
+    char *dev ="eth1"; //NULL;			/* capture device name */
 //    char *dev ="eth2"; //NULL;			/* capture device name */
 //    char *dev ="eth1"; //NULL;			/* capture device name */
 

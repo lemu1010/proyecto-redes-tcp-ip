@@ -301,16 +301,24 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
             namePacket = "ack";
             eventType = "+";
-            trace << eventType << " " << packet.getTimeStamp() - RTTEstimado << nodoCliente << " ";
-            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << eventType << " " << packet.getTimeStamp() - RTTEstimado/2 << " "<<nodoServidor << " ";
+            trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN + ACK" << endl;
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
 
             eventType = "-";
-            trace << eventType << " " << packet.getTimeStamp() - RTTEstimado << nodoCliente << " ";
-            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << eventType << " " << packet.getTimeStamp() - RTTEstimado/2 <<" "<< nodoServidor << " ";
+            trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
-            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN + ACK" << endl;
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
+
+
+            eventType = "r";
+            trace << eventType << " " << packet.getTimeStamp() <<" "<< nodoServidor << " ";
+            trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
+
 
 
             listaPaqServidor.append(packet);
@@ -320,65 +328,6 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
     }
 
 
-
-    /*
-        int nodoCliente;
-        int nodoServidor;
-        unsigned int ultimoACK;
-        unsigned int ultimoSeqEnviado;
-        int numeroConexion;
-        int contadorPaquetes;
-
-      //  QString prueba;
-
-         QList <Packet>listaPaqCliente;
-         QList <Packet>listaPaqEmisor;
-
-         QList <unsigned int> listaConfirmaciones;
-
-
-    */
-    /*   if(nodata)
-    {
-        cout<<"NO DATA ";
-    }
-
-   if ((flags & TH_ACK) &&(flags & TH_SYN))
-   {
-       cout<<"SYN+ACK"<<endl;
-
-
-   }
-   else if ((flags & TH_SYN)and not((flags & TH_ACK)))
-   {
-       cout<<"SYN"<<endl;
-
-   }
-
-
-   else if ((flags & TH_PUSH)and ((flags & TH_ACK)) )
-   {
-       cout<<"PUSH+ACK"<<endl;
-
-   }
-   else if ((flags & TH_FIN)and not((flags & TH_ACK)) )
-   {
-       cout<<"FIN"<<endl;
-
-   }
-  else  if ((flags & TH_FIN)and ((flags & TH_ACK)) )
-   {
-       cout<<"FIN+ACK"<<endl;
-
-   }
-   else if ((flags & TH_ACK))
-   {
-       cout<<"ACK "<<endl;
-
-   }
-   else
-       cout<<"EN IF NO HAY UNA BANDERA CONSIDERADA"<<endl;
-    */
 }
 
 
