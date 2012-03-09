@@ -399,88 +399,18 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     //------------------------------------//
 
 
-    //----- NAME PACKET -----//
-/*
-    string namePacket;
 
-    if( tcp->th_flags & TH_ACK  )
-        namePacket = "ack";
-    else
-        namePacket = "tcp";*/
-
-
-    /*********** DATA TRACE ************/
-/*
-    string eventType = "x";
-    string banderas = "-------";
-
-    float timeEncolado = 0.020000;
-*/
 
     float diff = calculo_time(header);
     cout<<"tiempo de funcion "<<diff<<endl;
 
     //-----------------------------CODIGO DE CLASE---------------------------------------
-   Packet paqueteEvaluado(header,packet,nodo1.toInt(),nodo2.toInt());
-   conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),trace);
-   hashConexiones.remove(key);
-   hashConexiones.insert(key,conexionActual);
+//   Packet paqueteEvaluado(header,ip,tcp);
+//   conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),trace);
+//   hashConexiones.remove(key);
+//   hashConexiones.insert(key,conexionActual);
 
-  /*                IMPRIMIR EN ARCHIVO
 
-   if( (syn == 1) && (ack == 0) ) {
-        eventType = "+";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
-        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-
-        eventType = "-";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
-        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-    }
-    else if( (syn == 1) && (ack == 1) ) {
-
-        eventType = "r";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numTgtIP) << " ";
-        trace << hashNodos.value(*numSrcIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " <<  htons(tcp->th_dport) << " " <<htons(tcp->th_sport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-
-        eventType = "+";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
-        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-
-        eventType = "-";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
-        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-    }
-    else if( ack==1 ) {
-        eventType = "r";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numTgtIP) << " ";
-        trace << hashNodos.value(*numSrcIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " <<  htons(tcp->th_dport) << " " <<htons(tcp->th_sport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-
-        eventType = "+";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
-        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-
-        eventType = "-";
-        trace << eventType << " " << diff << " " << hashNodos.value(*numSrcIP) << " ";
-        trace << hashNodos.value(*numTgtIP) << " " << namePacket << " " << header->len << " ";
-        trace << banderas << " " << htons(tcp->th_sport) << " " << htons(tcp->th_dport) << " ";
-        trace << tcp->th_win << " " << ntohl(tcp->th_seq) << " " << ip->ip_id << endl;
-    }
-*/
     return;
 }
 
