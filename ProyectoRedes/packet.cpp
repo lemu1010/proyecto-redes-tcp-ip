@@ -5,25 +5,16 @@ Packet::Packet()
 {
 }
 
-Packet::Packet(const pcap_pkthdr *header, const u_char *packet, int fuente, int destino)
+Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp)
 {
 
 
-    /* declare pointers to packet headers */
-    const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
-    const struct sniff_ip *ip;              /* The IP header */
-    const struct sniff_tcp *tcp;            /* The TCP header */
 
     int size_ip;
     int size_tcp;
     FIN=SYN=RST= PUSH= ACK= URG= ECE= CWR=false;
 
-    //------------------------------------------Extraemos Todas las cabeceras para ser procesadas-----------------------
-    /* define ethernet header */
-    ethernet = (struct sniff_ethernet*)(packet);
 
-    /* define/compute ip header offset */
-    ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
     size_ip = IP_HL(ip)*4;
 
     if (size_ip < 20) {
@@ -32,8 +23,7 @@ Packet::Packet(const pcap_pkthdr *header, const u_char *packet, int fuente, int 
     }
 
 
-    /* define/compute tcp header offset */
-    tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
+
     size_tcp = TH_OFF(tcp)*4;
     if (size_tcp < 20) {
         printf("   * Invalid TCP header length: %u bytes\n", size_tcp);
@@ -69,6 +59,10 @@ Packet::Packet(const pcap_pkthdr *header, const u_char *packet, int fuente, int 
     else if(ACK && tam==0)
     {
          setNextSeq(-100);
+    }
+    else if(tam>0 && ACK)
+    {
+        setNextSeq(nextSeq);
     }
 
     cout<<"paquete creado lo  reconocera ack"<<this->nextSeq<<endl;

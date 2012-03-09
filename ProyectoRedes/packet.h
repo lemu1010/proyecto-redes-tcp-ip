@@ -31,7 +31,7 @@ class Packet
 
 public:
     Packet();
-    Packet( const struct pcap_pkthdr *header, const u_char *packet,int fuente,int destino);
+    Packet( const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp);
     void    setIPFuente(char *);
     QString getIPFuente();
 

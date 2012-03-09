@@ -15,8 +15,11 @@ class Conexion
    /* Entonces el cliente sera el que inicie la conversacion */
     int nodoCliente;
     int nodoServidor;
-    unsigned int ultimoACK;
-    unsigned int ultimoSeqEnviado;
+    unsigned int ultimoACKRecibidoCliente;
+    unsigned int ultimoSeqEnviadoCliente;
+    unsigned int ultimoACKRecibidoServidor;
+    unsigned int ultimoSeqEnviadoServidor;
+
     int numeroConexion;
     int contadorPaquetes;
     double RTTEstimado;
