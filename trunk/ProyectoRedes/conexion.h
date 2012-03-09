@@ -40,6 +40,7 @@ public:
     int  getNodoServidor();
     int  getNumeroConexion();
     void evaluarNuevoPaquete(Packet,int ,int,fstream &);
+    void imprimirListas();
 
 
 

@@ -241,7 +241,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         hashConexiones.insert(nodo1+nodo2,nuevaConexion);
 
        }
-    cout<<"conexion falsa"<<endl;
+
     Conexion conexionFalsa(-1,-1,-1);
 
     Conexion    conexionActual    = hashConexiones.value(nodo1+nodo2,conexionFalsa);
@@ -256,7 +256,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
          exit(0);
 
 
-    //------------------------------LOQUEANDO JJ------------------------------------
+    //------------------------------INFO PAQUETE-----------------------------------
 
     u_char flags;
 
@@ -326,7 +326,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     }
 
-    //------------------------------fin LOQUEANDO JJ------------------------------------
+
 
     //------------ FLAGS TCP --------------//
     cout << "FLAGS TCP" << endl;
@@ -396,13 +396,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         cout << "URG = " << urg << endl;
 
     cout << endl;
-    //------------------------------------//
 
-
-
-
-    float diff = calculo_time(header);
-    cout<<"tiempo de funcion "<<diff<<endl;
 
     //-----------------------------CODIGO DE CLASE---------------------------------------
    Packet paqueteEvaluado(header,ip,tcp);
@@ -410,23 +404,16 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
    hashConexiones.remove(key);
    hashConexiones.insert(key,conexionActual);
 
-   cout<<"tv_sec"<<header->ts.tv_sec<<endl;
-   cout<<"tv_usec"<<header->ts.tv_usec<<endl;
+
+   if(countPacket>215)
+   {
+       conexionActual.imprimirListas();
+   }
 
     return;
 }
 
-float calculo_time(const struct pcap_pkthdr *header)
-{
 
-    static double tiempoBase=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
-    double tiempoNuevo=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
-
-
-    printf("tiempo con printf %.16g segundos\n",tiempoNuevo-tiempoBase);
-
-   return tiempoNuevo-tiempoBase;
-}
 
 
 
@@ -438,10 +425,10 @@ int main(int argc, char *argv[])
     w.show();
 
     //char *dev = "wlan0"; //NULL;			/* capture device name */
-//    char *dev ="eth0";
-    char *dev ="eth1"; //NULL;			/* capture device name */
-//    char *dev ="eth2"; //NULL;			/* capture device name */
-//    char *dev ="eth1"; //NULL;			/* capture device name */
+    //char *dev ="eth0";
+    //char *dev ="eth1"; //NULL;			/* capture device name */
+    char *dev ="eth2"; //NULL;			/* capture device name */
+   //char *dev ="eth1"; //NULL;			/* capture device name */
 
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
