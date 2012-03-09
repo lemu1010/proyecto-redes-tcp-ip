@@ -410,6 +410,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 //   hashConexiones.remove(key);
 //   hashConexiones.insert(key,conexionActual);
 
+   cout<<"tv_sec"<<header->ts.tv_sec<<endl;
+   cout<<"tv_usec"<<header->ts.tv_usec<<endl;
 
     return;
 }
@@ -435,12 +437,11 @@ int main(int argc, char *argv[])
     //w.capture_device();
     w.show();
 
-    //char *dev ="wlan0"; //NULL;			/* capture device name */
+    char *dev = "wlan0"; //NULL;			/* capture device name */
     //char *dev ="eth0";
-    char *dev ="eth1"; //NULL;			/* capture device name */
-
-
-
+    //char *dev ="eth1"; //NULL;			/* capture device name */
+//    char *dev ="eth2"; //NULL;			/* capture device name */
+//    char *dev ="eth1"; //NULL;			/* capture device name */
 
 
     char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
