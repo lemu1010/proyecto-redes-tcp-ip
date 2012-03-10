@@ -17,9 +17,6 @@ Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion)
     this->RTTEstimado=0.0;
     this->ultimoSeqEnviadoCliente=this->ultimoSeqEnviadoServidor=0;
 
-
-    cout<<"incializado"<<contadorPaquetes<<endl;
-
 }
 
 void Conexion::setNodoCliente(int nodoCliente)
@@ -63,21 +60,29 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
     contadorPaquetes++;
 
-    printf("\n------------------------------Packet number CLASS %d:------------------------------\n", contadorPaquetes);
+    printf("\n------------------------------CLASS Packet number  %d:------------------------------\n", contadorPaquetes);
 
 
     int i;
     double RTT=0.0;
+
+    if(fuente ==nodoCliente)
+        cout<<"Cliente------->Servidor"<<endl;
+    else
+        cout<<"Servidor------->Cliente"<<endl;
+
     cout<<"TAM="<<packet.getSizeData()<<endl;
+    cout<<"num SEQ"<<packet.getSeq()<<endl;
     cout<<"ultimo server"<<ultimoSeqEnviadoServidor<<endl;
     cout<<"ultimo cliente"<<ultimoSeqEnviadoCliente<<endl;
-    cout<<"num SEQ"<<packet.getSeq()<<endl;
-    /*--------------------Validando paquetes ----------------------------------------*/
+
+
+    /*------------------------------Validando paquetes ----------------------------------------*/
     string typeFlag;
 
-    //NOTA FALTA MANEJAR REFLEJO DE LOS DOS PRIMEROS CASOS
     if( (packet.getSYN() and not(packet.getACK() ) )  or (packet.getSizeData() > 0&& packet.getACK() ) ) {
-        cout<<"SYN"<<endl;
+        typeFlag = packet.getSYN() ? "SYN" : "DATA";
+        cout<<typeFlag<<endl;
         if(fuente==nodoCliente)
         {
             if(packet.getSeq()<ultimoSeqEnviadoCliente) //RETRANSMISION
@@ -87,6 +92,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 {
                     if(listaPaqCliente[i].getSeq()==packet.getSeq())
                     {
+                        cout<<"PAQUETE PERDIDO ID retransmision"<<listaPaqCliente[i].getId()<<endl;
                         listaPaqCliente.removeAt(i);
                         break;
                     }
@@ -101,7 +107,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             }
             namePacket="tcp";
             eventType = "+";
-            typeFlag = packet.getSYN() ? "SYN" : "DATA";
+
 
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
@@ -120,6 +126,105 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
         }
 
+        else{           //En el caso SYN es enviado por el Servidor caso atipico pero sucede
+            cout<<"CASO NO SOPORTADO 1"<<endl;
+            double tiempo=-1;
+            /*ERROR*/
+            if(packet.getSeq()<ultimoSeqEnviadoServidor) //RETRANSMISION
+            {
+                cout<<"RESTRANSMISION primer if"<<endl;
+                for(i=0;i<listaPaqServidor.size();i++)
+                {
+                    if(listaPaqServidor[i].getSeq()==packet.getSeq())
+                    {
+                        cout<<"informacion duplicada ID retransmision"<<listaPaqServidor[i].getId()<<endl;
+                        listaPaqServidor.removeAt(i);
+                        break;
+                    }
+
+                }
+                if(i==listaPaqServidor.size())
+                {
+                    cout<<"no se consigue retransmision"<<endl;
+                    exit(0);
+                }
+
+            }
+
+            //lo que se recibio reconoce algo??
+
+            if(packet.getACK())
+            {
+                for(i=0;i<listaPaqCliente.size();i++)
+                {
+                    cout<<"EN FOR 1 siguiente seq "<<listaPaqCliente[i].getNextSeq()<<" para i "<<i<<endl;
+                    printf("ack llego %u ",packet.getNumAck());
+                    if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
+                    {
+                        cout<<"RECONOCIO"<<endl;
+                        break;
+                    }
+                }
+                if(i<listaPaqCliente.size())
+                {
+                    namePacket="tcp";
+                    RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
+
+                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
+                         RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
+
+                    else
+                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
+
+
+                    tiempo=packet.getTimeStamp()-RTT/2;
+
+                    eventType = "r";
+
+
+                    trace << eventType << " " << tiempo<< " " << nodoCliente << " ";
+                    trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
+                    trace << banderas << " " <<listaPaqCliente[i].getPortFuente() << " " << listaPaqCliente[i].getPortDestino()<< " ";
+                    trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " "<< typeFlag << endl;
+
+
+
+                }
+
+            }
+
+            if(tiempo==-1)
+            {
+                tiempo=packet.getTimeStamp() -RTTEstimado/2;
+            }
+
+            namePacket="ack";
+            eventType = "+";
+
+
+            trace << eventType << " " << tiempo<< " " << nodoServidor << " ";
+            trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
+
+            eventType = "-";
+            trace << eventType << " " << tiempo << " " << nodoServidor << " ";
+            trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
+
+            eventType = "r";
+            trace << eventType << " " << packet.getTimeStamp() << " " << nodoServidor << " ";
+            trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
+
+            ultimoSeqEnviadoServidor=packet.getSeq();
+            listaPaqServidor.append(packet);
+            /*ERROR*/
+
+        }
+
     }
 
     else if (  (packet.getACK() ) && (packet.getSYN() )  )
@@ -127,7 +232,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
         cout<<"SYN+ACK"<<endl;
         if(fuente==nodoServidor)
         {
-
+            double tiempo=-1;
             if(packet.getSeq()<ultimoSeqEnviadoServidor) //RETRANSMISION
             {
                 cout<<"RESTRANSMISION primer if"<<endl;
@@ -161,38 +266,54 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     }
                 }
                 cout<<"aqui salio i"<<i<<endl;
+                if(i<listaPaqCliente.size())
+                {
+                    // cout<<"num ack"<< ntohl(packet.getNumAck());
+                    cout<<"siguiente seq PAQUETE"<<listaPaqCliente[i].getNextSeq()<<endl;
+                    RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
 
-                // cout<<"num ack"<< ntohl(packet.getNumAck());
-                cout<<"siguiente seq PAQUETE"<<listaPaqCliente[i].getNextSeq()<<endl;
-                RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
-                //cout<<"NO"<<endl;
+                    //cout<<"NO"<<endl;
+                    tiempo =RTT/2;
 
-                RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
-                cout<<"RTT"<<RTT<<endl;
-                cout<<"ESTIMADO: SYN"<<RTTEstimado<<endl;
+                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
+                         RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
+
+                    else
+                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
 
 
-                namePacket="tcp";
-                eventType = "r";
 
-                typeFlag = listaPaqCliente[i].getSizeData() > 0 ? "DATA" : "SYN";
+                    cout<<"RTT"<<RTT<<endl;
+                    cout<<"ESTIMADO: SYN"<<RTTEstimado<<endl;
 
-                trace << eventType << " " << RTT/2 << " " <<nodoCliente << " ";
-                trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
-                trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
-                trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " " << typeFlag << endl;
 
-                listaPaqCliente.removeAt(i);
+                    namePacket="tcp";
+                    eventType = "r";
+
+                    typeFlag = listaPaqCliente[i].getSizeData() > 0 ? "DATA" : "SYN";
+
+                    trace << eventType << " " <<listaPaqCliente[i].getTimeStamp()+ tiempo<< " " <<nodoCliente << " ";
+                    trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
+                    trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
+                    trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " " << typeFlag << endl;
+
+                    listaPaqCliente.removeAt(i);
+                }
+            }
+
+            if(tiempo==-1)
+            {
+                tiempo=RTTEstimado/2;
             }
             namePacket="ack";
             eventType = "+";  /*OJO YA AQUI NO SERA RTT/2 sino el tiempo del paquete -este RTT/2*/
-            trace << eventType << " " << RTT/2 << " " << nodoServidor << " ";
+            trace << eventType << " " << packet.getTimeStamp()-tiempo << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
 
             eventType = "-";
-            trace << eventType << " " << RTT/2 << " " << nodoServidor << " ";
+            trace << eventType << " " <<packet.getTimeStamp()- tiempo<< " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId() << " " << "SYN+ACK" << endl;
@@ -209,6 +330,11 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
         }
 
+        else   //EL cliente envia el SYN+ACK caso atipico pero sucede
+        {
+            cout<<"CASO NO SOPORTADO 2"<<endl;
+        }
+
 
 
     }
@@ -218,8 +344,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
         cout<<"ACK  PURO"<<endl;
         cout<<"ESTIMADO:"<<RTTEstimado<<endl;
-        //cout<<"fuente"<<fuente<<endl;
-        //cout<<"cliente"<<nodoCliente<<endl;
+
         if(fuente==nodoCliente)
         {
 
@@ -255,7 +380,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
         else
         {
-
+            double tiempo=-1;
             cout<<"antes tam de lista"<<listaPaqCliente.size()<<endl;
             if(listaPaqCliente.size()>0)
             {
@@ -270,36 +395,47 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     }
                 }
                 cout<<"aqui salio i"<<i<<endl;
+                if(i<listaPaqCliente.size())
+                {
+                    //cout<<"num ack"<< ntohl(packet.getNumAck());
+                    cout<<"siguiente seq"<<listaPaqCliente[i].getNextSeq()<<endl;
 
-                //cout<<"num ack"<< ntohl(packet.getNumAck());
-                cout<<"siguiente seq"<<listaPaqCliente[i].getNextSeq()<<endl;
+                    RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
+                    //cout<<"NO"<<endl;
+                    tiempo=RTT/2;
 
-                RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
-                //cout<<"NO"<<endl;
+                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
+                         RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
 
-                RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
-                cout<<"RTT"<<RTT<<endl;
-                cout<<"ESTIMADO: SYN"<<RTTEstimado<<endl;
+                    else
+                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
 
-                cout<<"antes de escribir en else"<<endl;
-                namePacket="tcp";
-                eventType = "r";
-                trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+RTT/2 << " " <<nodoCliente << " ";
-                trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
-                trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
-                trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " " << "ACK PURO" << endl;
+                    cout<<"RTT"<<RTT<<endl;
+                    cout<<"ESTIMADO: SYN"<<RTTEstimado<<endl;
 
+                    cout<<"antes de escribir en else"<<endl;
+                    namePacket="tcp";
+                    eventType = "r";
+                    trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+tiempo<< " " <<nodoCliente << " ";
+                    trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
+                    trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
+                    trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " " << "ACK PURO" << endl;
+                }
+            }
+            if(tiempo==-1)
+            {
+                tiempo=RTTEstimado/2;
             }
 
             namePacket="ack";
             eventType = "+";
-            trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+RTT/2 << " " << nodoServidor << " ";
+            trace << eventType << " " << packet.getTimeStamp()-tiempo<< " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
             eventType = "-";
-            trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+RTT/2        << " " << nodoServidor << " ";
+            trace << eventType << " " <<  packet.getTimeStamp()-tiempo     << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId() << " " << "ACK PURO" << endl;
@@ -380,6 +516,7 @@ void Conexion::imprimirListas()
     cout<<"lista de paquetes no confirmados cliente"<<endl;
     for(int i=0;i<listaPaqCliente.size();i++)
     {
+        cout<<"paquete i="<<i<<endl;
         cout<<" siguiente seq"<<listaPaqCliente[i].getNextSeq()<<endl;
         printf("ack  %u",listaPaqCliente[i].getNumAck());
         printf("id  %u",listaPaqCliente[i].getId());
@@ -389,6 +526,7 @@ void Conexion::imprimirListas()
     cout<<"lista de paquetes no confirmados servidor"<<endl;
     for(int i=0;i<listaPaqServidor.size();i++)
     {
+        cout<<"paquete i="<<i<<endl;
         cout<<" siguiente seq"<<listaPaqServidor[i].getNextSeq()<<endl;
         printf("ack  %u",listaPaqServidor[i].getNumAck());
         printf("id  %u",listaPaqServidor[i].getId());

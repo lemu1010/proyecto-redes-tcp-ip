@@ -397,7 +397,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     cout << endl;
 
-
+calculo_time(header);
     //-----------------------------CODIGO DE CLASE---------------------------------------
    Packet paqueteEvaluado(header,ip,tcp);
    conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),trace);
@@ -414,7 +414,17 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 }
 
 
+float calculo_time(const struct pcap_pkthdr *header)
+{
 
+    static double tiempoBase=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
+    double tiempoNuevo=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
+
+
+    printf("tiempo con printf %.16g segundos\n",tiempoNuevo-tiempoBase);
+
+   return tiempoNuevo-tiempoBase;
+}
 
 
 int main(int argc, char *argv[])
@@ -426,8 +436,8 @@ int main(int argc, char *argv[])
 
     //char *dev = "wlan0"; //NULL;			/* capture device name */
     //char *dev ="eth0";
-    //char *dev ="eth1"; //NULL;			/* capture device name */
-    char *dev ="eth2"; //NULL;			/* capture device name */
+    char *dev ="eth1"; //NULL;			/* capture device name */
+   // char *dev ="eth2"; //NULL;			/* capture device name */
    //char *dev ="eth1"; //NULL;			/* capture device name */
 
 
