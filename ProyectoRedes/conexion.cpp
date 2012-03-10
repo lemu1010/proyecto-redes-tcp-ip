@@ -171,7 +171,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
 
                     if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-                         RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
+                         RTTEstimado  =	 RTT;
 
                     else
                          RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
@@ -276,7 +276,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     tiempo =RTT/2;
 
                     if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-                         RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
+                         RTTEstimado  =	 RTT ;
 
                     else
                          RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
@@ -405,7 +405,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     tiempo=RTT/2;
 
                     if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-                         RTTEstimado  =	 0.875*RTT +	0.125	* RTT;
+                         RTTEstimado  =	 RTT;
 
                     else
                          RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
