@@ -10,8 +10,6 @@ Packet::Packet()
 Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp, int numberPacketCaptured)
 {
 
-
-
     int size_ip;
     int size_tcp;
     FIN=SYN=RST= PUSH= ACK= URG= ECE= CWR=false;

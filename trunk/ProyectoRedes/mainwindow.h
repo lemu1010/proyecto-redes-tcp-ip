@@ -30,6 +30,7 @@ private:
     void createToolBar();
     void enableEstandar(bool enabled);
     void messageBox(std::string message);
+    void closeEvent(QCloseEvent *);
 
 private slots:
 

@@ -149,7 +149,16 @@ void MainWindow::slotAbrir()
 
 void MainWindow::slotGuardar()
 {
+    working = false;
+}
 
+void MainWindow::closeEvent(QCloseEvent * evento)
+{
+    if( QMessageBox::question(this, tr(" "),tr("<center>¿Esta seguro que desea salir?"),
+                              QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
+        ::exit(0);
+
+    evento->ignore();
 }
 
 void MainWindow::slotSalir()
@@ -170,6 +179,8 @@ void MainWindow::slotPlayCaptura()
         if( pcapThread->initInterface() ) {
 
             tablePacket = new TablePacket;
+            connect(tablePacket, SIGNAL(cellClicked(int,int)), tablePacket, SLOT(selectRow(int)));
+
             setCentralWidget(tablePacket);
 
             pcapThread->setTablePacket(tablePacket);
@@ -180,12 +191,16 @@ void MainWindow::slotPlayCaptura()
             actionStopCapture->setEnabled(true);
             actionGuardar->setEnabled(true);
             actionPlayCapture->setEnabled(false);
+
+            working = true;
         }
         else {
             std::string cad = "ERROR: " + pcapThread->getPcapError();
             messageBox(cad);
         }
-
+    }
+    else {
+        slotGuardar();
     }
 
 }
@@ -225,13 +240,13 @@ void MainWindow::slotStopCaptura()
 
 void MainWindow::slotFlowTcp()
 {
-
-//  //  int ret = QProcess::execute("cp ./trazaReal.tr ./Proyectopy ");
+//    int ret = QProcess::execute("sh ./Proyectopy/execImage.sh");
 
 //    if( !(ret == QProcess::NormalExit) )
 //        messageBox("ERROR: Grafica Flujo TCP no creada.");
-    QProcess script;
-    script.start("cp ./trazaReal.tr ./Proyectopy");
+
+    QProcess *script = new QProcess(this);
+    script->start("sudo sh execImage.sh");
 
 }
 

@@ -45,3 +45,11 @@ RESOURCES += \
     recursos.qrc \
     recursos.qrc
 
+OTHER_FILES += \
+    Proyectopy/ns2.py \
+    Proyectopy/main.py \
+    Proyectopy/execImage.sh \
+    Proyectopy/canvas.py \
+    Proyectopy/svg.py \
+    trazaReal.tr
+
