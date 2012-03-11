@@ -13,13 +13,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     conexion.cpp \
-    packet.cpp
+    packet.cpp \
+    pcapthread.cpp \
+    tablepacket.cpp
 
 
 HEADERS  += mainwindow.h \
     conexion.h \
     struct.h \
-    packet.h
+    packet.h \
+    pcapthread.h \
+    tablepacket.h
 
 FORMS    += mainwindow.ui
 
@@ -34,4 +38,7 @@ LIBS += -L/usr/lib -lpcap
 
 DEPENDPATH += /usr/include/pcap
 #DEPENDPATH += /home/antonio/lipcap-1.1.1/pcap
+
+RESOURCES += \
+    recursos.qrc
 

@@ -8,7 +8,7 @@ Conexion::Conexion()
     contadorPaquetes = 0;
     RTTEstimado=0.0;
 }
-Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion)
+Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TablePacket *& tablePacket)
 {
     this->contadorPaquetes = 0;
     this->nodoCliente=nodoCliente;
@@ -16,6 +16,11 @@ Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion)
     this->numeroConexion=nuemeroConexion;
     this->RTTEstimado=0.0;
     this->ultimoSeqEnviadoCliente=this->ultimoSeqEnviadoServidor=0;
+
+
+    this->tablePacket = &(*tablePacket);
+
+    cout<<"incializado"<<contadorPaquetes<<endl;
 
 }
 
@@ -60,8 +65,9 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
     contadorPaquetes++;
 
-    printf("\n------------------------------CLASS Packet number  %d:------------------------------\n", contadorPaquetes);
+    tablePacket->addPacket(packet);
 
+    printf("\n------------------------------CLASS Packet number  %d:------------------------------\n", contadorPaquetes);
 
     int i;
     double RTT=0.0;

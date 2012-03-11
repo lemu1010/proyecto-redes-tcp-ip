@@ -1,18 +1,19 @@
 #ifndef CONEXION_H
 #define CONEXION_H
 #include <QList>
-#include <mainwindow.h>
 #include <struct.h>
 #include <iostream>
 #include <fstream>
 #include <packet.h>
+#include <tablepacket.h>
+
 using namespace std;
 
 
 class Conexion
 {
-   /* Nombres relativos pues estos nodos pueden cambiar roles */
-   /* Entonces el cliente sera el que inicie la conversacion */
+    /* Nombres relativos pues estos nodos pueden cambiar roles */
+    /* Entonces el cliente sera el que inicie la conversacion */
     int nodoCliente;
     int nodoServidor;
     unsigned int ultimoACKRecibidoCliente;
@@ -24,15 +25,17 @@ class Conexion
     int contadorPaquetes;
     double RTTEstimado;
 
-  //  QString prueba;
+    //  QString prueba;
 
-     /*lista que contiene los paquetes aun no confirmados de cada nodo*/
-     QList <Packet>listaPaqCliente;
-     QList <Packet>listaPaqServidor;
+    /*lista que contiene los paquetes aun no confirmados de cada nodo*/
+    QList <Packet>listaPaqCliente;
+    QList <Packet>listaPaqServidor;
+
+    TablePacket *tablePacket;
 
 public:
     Conexion();
-    Conexion(int,int,int);
+    Conexion(int,int,int, TablePacket *&);
     void setNodoCliente(int );
     void setNodoServidor(int );
     void setNumeroConexion(int);

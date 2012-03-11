@@ -5,6 +5,7 @@
 
 class Packet
 {
+    int numberPacketCaptured;
     QString IPFuente;
     QString IPDestino;
     u_short portFuente;
@@ -31,7 +32,11 @@ class Packet
 
 public:
     Packet();
-    Packet( const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp);
+    Packet( const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp, int numberPacketCaptured);
+
+    void    setNumberPacketCaptured(int );
+    int     getNumberPacketCaptured();
+
     void    setIPFuente(char *);
     QString getIPFuente();
 
