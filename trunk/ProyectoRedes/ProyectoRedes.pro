@@ -23,6 +23,8 @@ HEADERS  += mainwindow.h \
     struct.h \
     packet.h \
     pcapthread.h \
+    tablepacket.h \
+    pcapthread.h \
     tablepacket.h
 
 FORMS    += mainwindow.ui
@@ -40,5 +42,6 @@ DEPENDPATH += /usr/include/pcap
 #DEPENDPATH += /home/antonio/lipcap-1.1.1/pcap
 
 RESOURCES += \
+    recursos.qrc \
     recursos.qrc
 

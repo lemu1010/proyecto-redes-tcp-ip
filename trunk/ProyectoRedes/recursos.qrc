@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/abrir.png</file>
+        <file>images/aceptar.png</file>
+        <file>images/acercade.png</file>
+        <file>images/ajustar.png</file>
+        <file>images/cancel.png</file>
+        <file>images/cerrar.png</file>
+        <file>images/ethernet_card.png</file>
+        <file>images/flowTCP.png</file>
+        <file>images/guardar.png</file>
+        <file>images/logo.png</file>
+        <file>images/nuevo.png</file>
+        <file>images/play.png</file>
+        <file>images/stop.png</file>
+        <file>images/ver.png</file>
+        <file>images/wifi_modem.png</file>
+        <file>images/zoom-in.png</file>
+        <file>images/zoom-normal.png</file>
+        <file>images/zoom-out.png</file>
+    </qresource>
+</RCC>
