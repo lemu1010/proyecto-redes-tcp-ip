@@ -65,17 +65,19 @@ void TablePacket::addPacket(Packet packet)
         QString cadInfo;
 
         if( packet.getSYN() && !packet.getACK() )
-            cadInfo = "[SYN] no data";
+            cadInfo = "[SYN]";
         else if( packet.getSYN() && packet.getACK() )
-            cadInfo = "[SYN,ACK] no data";
+            cadInfo = "[SYN,ACK]";
         else if( packet.getACK() && packet.getSizeData() == 0 )
-            cadInfo = "[ACK] no data";
+            cadInfo = "[ACK]";
         else if( packet.getACK() )
-            cadInfo = "[ACK] data";
+            cadInfo = "[ACK]";
         else if( packet.getFIN() && packet.getACK() )
             cadInfo = "[FIN,ACK]";
 
-        item->setText(cadInfo);
+        item->setText(cadInfo + QString(" Seq = " + QString::number(packet.getSeq()) + //
+                                        QString(" Ack = ") + QString::number(packet.getNumAck()) + //
+                                        QString(" Len = ") + QString::number(packet.getSizeData())));
         this->setItem(row, 4, item);
 
 
