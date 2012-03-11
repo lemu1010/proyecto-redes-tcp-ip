@@ -2,6 +2,7 @@
 #define STRUCT_H
 /*pcap y estructuras para manejarlo*/
 #include <stdlib.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -74,4 +75,7 @@ struct sniff_tcp {
 #define FLTRSZ 120
 #define MAXHOSTSZ 256
 #define PCAP SAVEFILE "./pcap_savefile"
+
+
+
 #endif // STRUCT_H

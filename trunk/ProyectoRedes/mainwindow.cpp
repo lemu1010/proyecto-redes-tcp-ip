@@ -7,60 +7,254 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
+
+    initGUI();
+    createAction();
+    createMenu();
+    createToolBar();
+
 }
 
-void MainWindow::capture_device()
+void  MainWindow::initGUI()
+{
+    setWindowTitle("WireFisher");
+    setWindowIcon(QIcon(":/images/logo.png"));
+
+    int ancho = QApplication::desktop()->width();
+    int alto = QApplication::desktop()->height();
+    setGeometry(0,0,ancho,alto);
+
+    QRect geometry = this->geometry();
+    geometry.moveCenter(QApplication::desktop()->availableGeometry().center());
+    setGeometry(geometry);
+    showMaximized();
+
+    working = false;
+    initComboBox();
+
+    //Codificación de caracteres UTF-8
+    QTextCodec *linuxCodec = QTextCodec::codecForName("UTF-8");
+    QTextCodec::setCodecForTr(linuxCodec);
+    QTextCodec::setCodecForCStrings(linuxCodec);
+    QTextCodec::setCodecForLocale(linuxCodec);
+}
+
+void MainWindow::createAction()
+{
+    actionAbrir = new QAction(QIcon(":/images/abrir.png"),tr("&Abrir"),this);
+    actionAbrir->setShortcut(tr("Ctrl+o"));
+    actionAbrir->setStatusTip("Abrir un archivo de captura de trazas");
+    actionAbrir->setToolTip("Abrir un archivo de captura de trazas");
+    connect(actionAbrir, SIGNAL(triggered()), this, SLOT(slotAbrir()));
+
+    actionGuardar = new QAction(QIcon(":/images/guardar.png"),tr("&Guardar"),this);
+    actionGuardar->setShortcut(tr("Ctrl+s"));
+    actionGuardar->setStatusTip("Guardar las trazas capturadas");
+    actionGuardar->setToolTip("Guardar las trazas capturadas");
+    actionGuardar->setEnabled(false);
+    connect(actionGuardar, SIGNAL(triggered()), this, SLOT(slotGuardar()));
+
+    actionSalir = new QAction(QIcon(":/images/cerrar.png"),tr("&Salir"),this);
+    actionSalir->setShortcut(tr("Ctrl+q"));
+    actionSalir->setStatusTip("Salir de la aplicación");
+    connect(actionSalir, SIGNAL(triggered()), this, SLOT(slotSalir()));
+
+    actionPlayCapture = new QAction(QIcon(":/images/play.png"),tr("&Empezar Captura"),this);
+    actionPlayCapture->setShortcut(tr("Ctrl+e"));
+    actionPlayCapture->setStatusTip("Empezar captura de paquetes");
+    actionPlayCapture->setToolTip("Empezar captura de paquetes");
+    connect(actionPlayCapture, SIGNAL(triggered()), this, SLOT(slotPlayCaptura()));
+
+    actionStopCapture = new QAction(QIcon(":/images/stop.png"),tr("&Parar Captura"), this);
+    actionStopCapture->setShortcut(tr("Ctrl+p"));
+    actionStopCapture->setStatusTip("Parar captura de paquetes");
+    actionStopCapture->setToolTip("Parar captura de paquetes");
+    actionStopCapture->setEnabled(false);
+    connect(actionStopCapture, SIGNAL(triggered()), this, SLOT(slotStopCaptura()));
+
+    actionFlujoTcp = new QAction(QIcon(":/images/flowTCP.png"),tr("Grafica Flujo TCP"), this);
+    actionFlujoTcp->setStatusTip("Muestra grafica flujo tcp");
+    actionFlujoTcp->setToolTip("Muestra grafica flujo tcp");
+    actionFlujoTcp->setEnabled(false);
+    connect(actionFlujoTcp, SIGNAL(triggered()), this, SLOT(slotFlowTcp()));
+
+    actionAcerca = new QAction(QIcon(":/images/acercade.png"),tr("Acerca"),this);
+    connect(actionAcerca, SIGNAL(triggered()), this, SLOT(slotAcercaDe()));
+}
+
+void MainWindow::initComboBox()
+{
+    pcapThread = new PcapThread;
+
+    boxDevice = new QComboBox(this);
+    connect(boxDevice, SIGNAL(currentIndexChanged(QString)), pcapThread, SLOT(setInterfaceName(QString)));
+
+    QList<Interface> listaInterface = pcapThread->getInterfaces();
+
+    pcapThread->terminate();
+
+    QIcon wifiIcon(":images/wifi_modem.png");
+    QIcon ethIcon(":images/ethernet_card.png");
+
+    foreach(Interface interface, listaInterface ) {
+
+        if(interface.datalink_type == DLT_IEEE802_11) /* Wifi */
+            boxDevice->addItem(wifiIcon,interface.name);
+
+        if(interface.datalink_type == DLT_EN10MB) /* Ethernet 10MB */
+            boxDevice->addItem(ethIcon,interface.name);
+        else
+            boxDevice->addItem(ethIcon,interface.name);
+    }
+
+}
+
+void MainWindow::createMenu()
+{
+    menuArchivo = menuBar()->addMenu("&Archivo");
+    menuArchivo->addAction(actionAbrir);
+    menuArchivo->addSeparator();
+    menuArchivo->addAction(actionGuardar);
+    menuArchivo->addSeparator();
+    menuArchivo->addAction(actionSalir);
+
+    menuCaptura = menuBar()->addMenu("&Captura");
+    menuCaptura->addAction(actionPlayCapture);
+    menuCaptura->addAction(actionStopCapture);
+
+    menuGrafica = menuBar()->addMenu("&Grafica");
+    menuGrafica->addAction(actionFlujoTcp);
+
+    menuAyuda = menuBar()->addMenu("A&yuda");
+    menuAyuda->addAction(actionAcerca);
+}
+
+void MainWindow::createToolBar()
+{
+    mainToolBar = new QToolBar();
+    mainToolBar->addAction(actionAbrir);
+    mainToolBar->addAction(actionGuardar);
+    mainToolBar->addSeparator();
+    mainToolBar->addWidget(boxDevice);
+    mainToolBar->addAction(actionPlayCapture);
+    mainToolBar->addAction(actionStopCapture);
+    mainToolBar->setMovable(false);
+    addToolBar(mainToolBar);
+}
+
+void MainWindow::slotAbrir()
 {
 
+}
 
-    if( (ret = pcap_findalldevs(&lista,errbuf)) == -1  )
-    {
-        printf("ERROR: %s\n",errbuf);
-        exit(-1);
+void MainWindow::slotGuardar()
+{
+
+}
+
+void MainWindow::slotSalir()
+{
+    this->close();
+}
+
+void MainWindow::slotPlayCaptura()
+{
+
+    QString name = boxDevice->currentText();
+
+    pcapThread = new PcapThread;
+    pcapThread->setInterfaceName(name);
+
+    if( !working ) {
+
+        if( pcapThread->initInterface() ) {
+
+            tablePacket = new TablePacket;
+            setCentralWidget(tablePacket);
+
+            pcapThread->setTablePacket(tablePacket);
+
+            pcapThread->started = true;
+            pcapThread->start();
+
+            actionStopCapture->setEnabled(true);
+            actionGuardar->setEnabled(true);
+            actionPlayCapture->setEnabled(false);
+        }
+        else {
+            std::string cad = "ERROR: " + pcapThread->getPcapError();
+            messageBox(cad);
+        }
+
     }
 
-    aux = lista;
+}
 
-    while( aux != NULL )
-    {
-        printf("Nombre del Dispositivo: %s\n",aux->name);
-        printf("Bandera: %d\n",aux->flags);
-        printf("Descripcion: %s\n",aux->description);
+void MainWindow::slotStopCaptura()
+{
+    qDebug() << "A";
+    if( not pcapThread->started )
+        return;
 
-        dev = aux->name;
+    qDebug() << "B";
+    if( pcapThread->handler == NULL )
+        return;
 
-        if( (ret = pcap_lookupnet(dev,&netp,&maskp,errbuf)) == -1 )
-        {
-            printf("ERROR: %s\n",errbuf);
-        }
+    qDebug() << "C";
+    pcap_breakloop(pcapThread->handler);
+    qDebug() << "D";
+    pcap_close(pcapThread->handler);
 
-        printf("ret devolvio: %d\n",ret);
-        addr.s_addr = netp;
+    qDebug() << "E";
+    if( pcapThread->isRunning() ) {
+        qDebug() << "F";
+        pcapThread->resetValues();
+        pcapThread->terminate();
 
-        if( (net = inet_ntoa(addr)) == NULL )
-        {
-            perror("inet_ntoa");
-            exit(-1);
-        }
-
-        printf("Direccion de Red: %s\n",net);
-
-        addr.s_addr = maskp;
-        mask = inet_ntoa(addr);
-
-        if( (net = inet_ntoa(addr)) == NULL)
-        {
-            perror("inet_ntoa");
-            exit(-1);
-        }
-
-        printf("Mascara de Red: %s\n\n\n",mask);
-
-        aux = aux->next;
     }
+    pcapThread->started = false;
 
-    exit(-1);
+    qDebug() << "G";
+    actionStopCapture->setEnabled(false);
+    qDebug() << "H";
+    actionPlayCapture->setEnabled(true);
+    qDebug() << "I";
+    actionFlujoTcp->setEnabled(true);
 
+}
+
+void MainWindow::slotFlowTcp()
+{
+
+//  //  int ret = QProcess::execute("cp ./trazaReal.tr ./Proyectopy ");
+
+//    if( !(ret == QProcess::NormalExit) )
+//        messageBox("ERROR: Grafica Flujo TCP no creada.");
+    QProcess script;
+    script.start("cp ./trazaReal.tr ./Proyectopy");
+
+}
+
+void MainWindow::slotAcercaDe()
+{
+    QString titulo = "<H2> WireFisher </H2>";
+    QString version = "<H5> Version 1.0 </H5> <br>";
+    QString descripcion1 = "Es un pequeño sistema que muestra el flujo TCP <br><br>";
+    QString desarrollador1 = "Desarrollado por: <br><br>";
+    QString desarrollador2 = "Jonathan Monsalve <br> Julio Muchacho <br> Fernando Osuna <br> Antonio López <br><br>";
+    QString tituloEmail = "Dirección electronica: <br>";
+    QString email = "j.jmonsalveg@gmail.com <br> muchacho.julio@gmail.com <br> osunaf@ula.ve <br> antoniol@ula.ve <br><br>";
+    QString lugar = "Universidad de los Andes, 2012.";
+
+    QMessageBox::about(this, tr("Acerca de Proyecto Redes"), "<center>" + titulo +
+                       version + descripcion1 + desarrollador1 + desarrollador2 +
+                       tituloEmail + email + "<font color = #FF8000>" + lugar +
+                       "</font>" + "</center>");
+}
+
+void MainWindow::messageBox(std::string message)
+{
+    QMessageBox::warning(this,"warning",message.c_str());
 }
 
 MainWindow::~MainWindow()

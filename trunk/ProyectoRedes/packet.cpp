@@ -1,11 +1,13 @@
 #include "packet.h"
 #include <iostream>
+
 using namespace std;
+
 Packet::Packet()
 {
 }
 
-Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp)
+Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp, int numberPacketCaptured)
 {
 
 
@@ -30,6 +32,7 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
         return;
     }
 
+    setNumberPacketCaptured(numberPacketCaptured);
     setIPFuente(inet_ntoa(ip->ip_src));
     setPortFuente(ntohs(tcp->th_sport));
 
@@ -71,6 +74,16 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
     cout<<"paquete creado lo  reconocera ack"<<this->nextSeq<<endl;
     printf("ack llego %u",ntohl(tcp->th_ack));
     printf("ack guardo %u",getNumAck());
+}
+
+void Packet::setNumberPacketCaptured(int numberPackeCaptured)
+{
+    this->numberPacketCaptured = numberPackeCaptured;
+}
+
+int Packet::getNumberPacketCaptured()
+{
+    return numberPacketCaptured;
 }
 
 void Packet::setIPFuente(char * IPFuente)
