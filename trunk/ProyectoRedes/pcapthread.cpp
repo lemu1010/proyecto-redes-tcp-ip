@@ -8,7 +8,7 @@ QHash<QString,int> hashNodos;
 QHash<QString,Conexion> hashConexiones;
 double tiempoBase;
 
-fstream trace("../ProyectoRedes/trazaReal.tr",ios::out);
+fstream trace("../ProyectoRedes/Proyectopy/trazaReal.tr",ios::out);
 
 // Calcular tiempo
 float calculo_time(const struct pcap_pkthdr *header)
