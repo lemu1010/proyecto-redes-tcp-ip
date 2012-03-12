@@ -207,7 +207,7 @@ void MainWindow::slotPlayCaptura()
         }
     }
     else {
-        slotGuardar();
+        clearEvent();
     }
 
 }
@@ -254,12 +254,22 @@ void MainWindow::slotFlowTcp()
 
     bash.closeWriteChannel();
     if(!bash.waitForFinished()){
-       messageBox("ERROR: grafica consumiendo recursos en sistemas ");
+        messageBox("ERROR: grafica consumiendo recursos en sistemas ");
 
     }
     QByteArray response = bash.readAll();
     qDebug() << response.data();
     bash.close();
+
+}
+
+void MainWindow::clearEvent()
+{
+
+    if( QMessageBox::question(this,tr(" "),tr("<center>¿Esta seguro que desea descartar la traza actual?"),//
+                              QMessageBox::No | QMessageBox::Yes) == QMessageBox::Yes )
+        clearWidgets();
+
 
 }
 
@@ -285,6 +295,24 @@ void MainWindow::slotAcercaDe()
 void MainWindow::messageBox(std::string message)
 {
     QMessageBox::warning(this,"warning",message.c_str());
+}
+
+
+void MainWindow::clearWidgets()
+{
+
+    working = false;
+
+    textPacket->clear();
+    delete textPacket;
+
+    tablePacket->clearContents();
+    delete tablePacket;
+
+    pcapThread->started = false;
+
+    pcapThread->resetValues();
+    pcapThread->terminate();
 }
 
 MainWindow::~MainWindow()
