@@ -111,9 +111,9 @@ void TablePacket::addPacket(Packet packet)
             cadInfo = "[SYN]" +  cadInfoAddicional;
         else if( packet.getSYN() && packet.getACK() )
             cadInfo = "[SYN,ACK]" + cadInfoAddicional;
-        else if( packet.getACK() && packet.getSizeData() == 0 )
+        else if( packet.getACK() && packet.getSizeData() == 0 && not (packet.getFIN()))
             cadInfo = "[ACK]" + cadInfoAddicional;
-        else if( packet.getACK() )
+        else if( packet.getACK() &&not (packet.getFIN()) && packet.getSizeData()>0)
             cadInfo = "[TCP Segemento Data]";
         else if( packet.getFIN() && packet.getACK() )
             cadInfo = "[FIN,ACK]" + cadInfoAddicional;

@@ -135,6 +135,53 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 }
 
             }
+            /*codigo nuevo*/
+
+
+            if(packet.getACK())
+            {
+                for(i=0;i<listaPaqServidor.size();i++)
+                {
+                    cout<<"EN FOR 1 siguiente seq "<<listaPaqCliente[i].getNextSeq()<<" para i "<<i<<endl;
+                    printf("ack llego %u ",packet.getNumAck());
+                    if(listaPaqServidor[i].getNextSeq()== packet.getNumAck())
+                    {
+                        packet.setAcusado(listaPaqServidor[i].getNumberPacketCaptured());
+                        cout<<"RECONOCIO"<<packet.getAcusado()<<endl;
+                        break;
+                    }
+                }
+                if(i<listaPaqServidor.size())
+                {
+                    namePacket="ack";
+                    RTT=actualizarRttEstimado(packet.getTimeStamp(),listaPaqServidor[i].getTimeStamp());
+
+
+                    double tiempo=packet.getTimeStamp()-RTT/2;
+
+                    eventType = "r";
+                    contadorPaquetesPintados++;
+
+                    trace << eventType << " " << tiempo<< " " << nodoServidor << " ";
+                    trace << nodoCliente << " " << namePacket << " " << listaPaqServidor[i].getSize() << " ";
+                    trace << banderas << " " <<listaPaqServidor[i].getPortFuente() << " " << listaPaqServidor[i].getPortDestino()<< " ";
+                    trace << listaPaqServidor[i].getCwnd() << " " <<listaPaqServidor[i].getSeq() << " " << listaPaqServidor[i].getId() << " "<< typeFlag << endl;
+
+
+//                      if(ultimoACKEnviadoCliente==packet.getNumAck() and listaPaqServidor[i].getSizeData()>0)
+//                            packet.setAckRepetido(true);
+
+
+                    listaPaqServidor.removeAt(i);
+
+
+                }
+
+            }
+
+
+            /*codigo nnuevo*/
+            /*falta chequear si reconoce algo del pasado*/
             namePacket="tcp";
             eventType = "+";
 
@@ -151,20 +198,16 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << typeFlag << endl;
 
-            if(packet.getACK())
-            {
-                if(ultimoACKEnviadoCliente==packet.getNumAck())
-                    packet.setAckRepetido(true);
 
-                ultimoACKEnviadoCliente=packet.getNumAck();
-            }
+             ultimoACKEnviadoCliente=packet.getNumAck();
+
 
             ultimoSeqEnviadoCliente=packet.getSeq();
             listaPaqCliente.append(packet);
 
         }
 
-        else{           //En el caso SYN es enviado por el Servidor caso atipico pero sucede
+      else{           //En el caso SYN es enviado por el Servidor caso atipico pero sucede
             cout<<"CASO NO SOPORTADO 1"<<endl;
             double tiempo=-1;
             /*ERROR*/
@@ -220,14 +263,14 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
                     trace << banderas << " " <<listaPaqCliente[i].getPortFuente() << " " << listaPaqCliente[i].getPortDestino()<< " ";
                     trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " "<< typeFlag << endl;
-
+                    listaPaqCliente.removeAt(i);
 
 
                 }
 
 
-                if(ultimoACKRecibidoServidor==packet.getNumAck())
-                    packet.setAckRepetido(true);
+//                if(ultimoACKRecibidoServidor==packet.getNumAck())
+//                    packet.setAckRepetido(true);
 
                 ultimoACKRecibidoServidor=packet.getNumAck();
 
@@ -368,8 +411,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
 
-            if(ultimoACKRecibidoServidor==packet.getNumAck())
-                packet.setAckRepetido(true);
+//            if(ultimoACKRecibidoServidor==packet.getNumAck())
+//                packet.setAckRepetido(true);
 
             ultimoACKRecibidoServidor=packet.getNumAck();
 
@@ -417,10 +460,11 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
             ultimoSeqEnviadoCliente=packet.getSeq();
 
-            if(ultimoACKEnviadoCliente==packet.getNumAck())
-                packet.setAckRepetido(true);
+//            if(ultimoACKEnviadoCliente==packet.getNumAck())
+//                packet.setAckRepetido(true);
 
             ultimoACKEnviadoCliente=packet.getNumAck();
+            listaPaqCliente.append(packet);
 
             /*fin else cliente syn+ack*/
 
@@ -471,8 +515,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
             ultimoSeqEnviadoCliente=packet.getSeq();
 
-            if(ultimoACKEnviadoCliente==packet.getNumAck())
-                packet.setAckRepetido(true);
+//            if(ultimoACKEnviadoCliente==packet.getNumAck())
+//                packet.setAckRepetido(true);
 
             ultimoACKEnviadoCliente=packet.getNumAck();
         }
@@ -515,6 +559,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
                     trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
                     trace << listaPaqCliente[i].getCwnd() << " " <<listaPaqCliente[i].getSeq() << " " << listaPaqCliente[i].getId() << " " << "ACK PURO" << endl;
+                    listaPaqCliente.removeAt(i);
                 }
             }
             if(tiempo==-1)
@@ -544,13 +589,13 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
             ultimoSeqEnviadoServidor=packet.getSeq();
 
-            if(ultimoACKRecibidoServidor==packet.getNumAck())
-                packet.setAckRepetido(true);
+//            if(ultimoACKRecibidoServidor==packet.getNumAck())
+//                packet.setAckRepetido(true);
 
             ultimoACKRecibidoServidor=packet.getNumAck();
 
-            listaPaqCliente.removeAt(i);
-            listaPaqServidor.append(packet);
+
+           //evaluar listaPaqServidor.append(packet);
 
 
         }
@@ -578,8 +623,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
             ultimoSeqEnviadoCliente=packet.getSeq();
 
-            if(ultimoACKEnviadoCliente==packet.getNumAck())
-                packet.setAckRepetido(true);
+//            if(ultimoACKEnviadoCliente==packet.getNumAck())
+//                packet.setAckRepetido(true);
 
             ultimoACKEnviadoCliente=packet.getNumAck();
 
@@ -611,8 +656,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
             ultimoSeqEnviadoServidor=packet.getSeq();
 
-            if(ultimoACKRecibidoServidor==packet.getNumAck())
-                packet.setAckRepetido(true);
+//            if(ultimoACKRecibidoServidor==packet.getNumAck())
+//                packet.setAckRepetido(true);
 
             ultimoACKRecibidoServidor=packet.getNumAck();
             listaPaqServidor.append(packet);
