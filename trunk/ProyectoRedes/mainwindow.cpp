@@ -187,7 +187,7 @@ void MainWindow::slotPlayCaptura()
 
             textPacket = new TextPacket();
             splitPane->addWidget(textPacket);
-            connect(tablePacket, SIGNAL(cellDoubleClicked(int,int)), textPacket, SLOT(setRowPackect(int,int)));
+            connect(tablePacket, SIGNAL(cellClicked(int,int)), textPacket, SLOT(setRowPackect(int,int)));
             setCentralWidget(splitPane);
 
             pcapThread->setTablePacket(tablePacket);
