@@ -403,7 +403,7 @@ bool PcapThread::openDevice()
 bool PcapThread::compileFilter()
 {
 
-    char filter_exp[] = " tcp and port 80 and host 10.11.14.239";
+    char filter_exp[] = " tcp and port 80 and host 10.11.14.182";
 
     /* compile the filter expression */
     if (pcap_compile(handler, &fp, filter_exp, 0, net) == -1) {
