@@ -174,13 +174,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 if(i<listaPaqCliente.size())
                 {
                     namePacket="tcp";
-                    RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
-
-                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-                         RTTEstimado  =	 RTT;
-
-                    else
-                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
+                    RTT=actualizarRttEstimado(packet.getTimeStamp(),listaPaqCliente[i].getTimeStamp());
 
 
                     tiempo=packet.getTimeStamp()-RTT/2;
@@ -396,6 +390,14 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             for(i=0;i<listaPaqServidor.size();i++)
             {
                 if(listaPaqServidor[i].getNextSeq()== packet.getNumAck()) {
+
+                    RTT=(packet.getTimeStamp()-listaPaqServidor[i].getTimeStamp());
+
+                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
+                         RTTEstimado  =	 RTT;
+
+                    else
+                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
                     listaPaqServidor.removeAt(i);
                     break;
                 }
@@ -577,6 +579,20 @@ void Conexion::imprimirListas()
         printf("id  %u",listaPaqServidor[i].getId());
 
     }
+}
+
+double Conexion::actualizarRttEstimado(double tLlegada, double tSalida)
+{
+    double RTT=tLlegada-tSalida;
+
+
+    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
+         RTTEstimado  =	 RTT;
+
+    else
+         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
+
+    return RTT;
 }
 
 

@@ -44,6 +44,7 @@ public:
     int  getNumeroConexion();
     void evaluarNuevoPaquete(Packet,int ,int,fstream &);
     void imprimirListas();
+    double actualizarRttEstimado(double, double);
 
 
 

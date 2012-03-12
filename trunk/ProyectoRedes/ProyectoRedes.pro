@@ -71,5 +71,7 @@ OTHER_FILES += \
     images/ajustar.png \
     images/acercade.png \
     images/aceptar.png \
-    images/abrir.png
+    images/abrir.png \
+    Proyectopy/out.svg \
+    Proyectopy/trazaReal.tr
 
