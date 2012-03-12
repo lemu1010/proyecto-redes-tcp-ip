@@ -15,6 +15,7 @@ private:
 signals:
     
 public slots:
+    void setRowPackect(int,int);
     
 };
 

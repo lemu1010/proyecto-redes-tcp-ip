@@ -181,13 +181,12 @@ void MainWindow::slotPlayCaptura()
             splitPane = new QSplitter(Qt::Vertical);
 
             tablePacket = new TablePacket;
-            tablePacket->setMinimumHeight(alto-250);
             connect(tablePacket, SIGNAL(cellClicked(int,int)), tablePacket, SLOT(selectRow(int)));
             splitPane->addWidget(tablePacket);
 
             textPacket = new TextPacket();
             splitPane->addWidget(textPacket);
-
+            connect(tablePacket, SIGNAL(cellDoubleClicked(int,int)), textPacket, SLOT(setRowPackect(int,int)));
             setCentralWidget(splitPane);
 
             pcapThread->setTablePacket(tablePacket);
