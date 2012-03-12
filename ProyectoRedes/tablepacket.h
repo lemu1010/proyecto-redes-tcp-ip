@@ -4,6 +4,7 @@
 #include <QTableWidget>
 #include <QtGui>
 #include <packet.h>
+#include <textpacket.h>
 
 class TablePacket : public QTableWidget
 {

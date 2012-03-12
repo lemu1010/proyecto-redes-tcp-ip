@@ -35,54 +35,94 @@ void TablePacket::addPacket(Packet packet)
 
     for( int row = rCount - 1; row < rCount; row++ ) {
 
+        // Column = 0
         QTableWidgetItem * item = new QTableWidgetItem();
-        item->setBackgroundColor(QColor(112,224,255));
         item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+
+        if( packet.getAckRepetido() || packet.getRestransmision() ) {
+            item->setBackgroundColor(QColor(0,0,0));
+            item->setForeground(QBrush(QColor(255,0,0)));
+        }
+        else
+            item->setBackgroundColor(QColor(112,224,255));
+
         item->setText(QString::number(packet.getNumberPacketCaptured()));
         this->setItem(row, 0, item);
 
+        // Column = 1
         item = new QTableWidgetItem();
-        item->setBackgroundColor(QColor(112,224,255));
         item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+
+        if( packet.getAckRepetido() || packet.getRestransmision() ) {
+            item->setBackgroundColor(QColor(0,0,0));
+            item->setForeground(QBrush(QColor(255,0,0)));
+        }
+        else
+            item->setBackgroundColor(QColor(112,224,255));
+
         item->setText(QString::number(packet.getTimeStamp()));
         this->setItem(row, 1, item);
 
+        // Column = 2
         item = new QTableWidgetItem();
-        item->setBackgroundColor(QColor(112,224,255));
         item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+
+        if( packet.getAckRepetido() || packet.getRestransmision() ) {
+            item->setBackgroundColor(QColor(0,0,0));
+            item->setForeground(QBrush(QColor(255,0,0)));
+        }
+        else
+            item->setBackgroundColor(QColor(112,224,255));
+
         item->setText(packet.getIPFuente());
         this->setItem(row, 2, item);
 
+        // Column = 3
         item = new QTableWidgetItem();
-        item->setBackgroundColor(QColor(112,224,255));
         item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+
+        if( packet.getAckRepetido() || packet.getRestransmision() ) {
+            item->setBackgroundColor(QColor(0,0,0));
+            item->setForeground(QBrush(QColor(255,0,0)));
+        }
+        else
+            item->setBackgroundColor(QColor(112,224,255));
+
         item->setText(packet.getIPDestino());
         this->setItem(row, 3, item);
 
+        // Column = 4
         item = new QTableWidgetItem();
-        item->setBackgroundColor(QColor(112,224,255));
         item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+
+        if( packet.getAckRepetido() || packet.getRestransmision() ) {
+            item->setBackgroundColor(QColor(0,0,0));
+            item->setForeground(QBrush(QColor(255,0,0)));
+        }
+        else
+            item->setBackgroundColor(QColor(112,224,255));
+
         QString cadInfo;
+        QString cadInfoAddicional = QString(" Seq = " + QString::number(packet.getSeq()) + //
+                                            QString(" Ack = ") + QString::number(packet.getNumAck()) + //
+                                            QString(" Len = ") + QString::number(packet.getSizeData()));
 
         if( packet.getSYN() && !packet.getACK() )
-            cadInfo = "[SYN]";
+            cadInfo = "[SYN]" +  cadInfoAddicional;
         else if( packet.getSYN() && packet.getACK() )
-            cadInfo = "[SYN,ACK]";
+            cadInfo = "[SYN,ACK]" + cadInfoAddicional;
         else if( packet.getACK() && packet.getSizeData() == 0 )
-            cadInfo = "[ACK]";
+            cadInfo = "[ACK]" + cadInfoAddicional;
         else if( packet.getACK() )
-            cadInfo = "[ACK]";
+            cadInfo = "[TCP Segemento Data]";
         else if( packet.getFIN() && packet.getACK() )
-            cadInfo = "[FIN,ACK]";
+            cadInfo = "[FIN,ACK]" + cadInfoAddicional;
 
-        item->setText(cadInfo + QString(" Seq = " + QString::number(packet.getSeq()) + //
-                                        QString(" Ack = ") + QString::number(packet.getNumAck()) + //
-                                        QString(" Len = ") + QString::number(packet.getSizeData())));
+        item->setText(cadInfo);
         this->setItem(row, 4, item);
 
-
-
     }
+
 }
 
 
