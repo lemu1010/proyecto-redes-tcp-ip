@@ -5,6 +5,7 @@
 #include <QtGui>
 #include <pcapthread.h>
 #include <tablepacket.h>
+#include <textpacket.h>
 
 using namespace std;
 
@@ -62,12 +63,13 @@ private:
 
     QToolBar *mainToolBar;
 
-    QScrollBar *marco;
-
     PcapThread *pcapThread;
 
     bool working;
+    int alto;
 
+    QSplitter *splitPane;
+    TextPacket * textPacket;
     TablePacket *tablePacket;
 
 };

@@ -15,7 +15,8 @@ SOURCES += main.cpp\
     conexion.cpp \
     packet.cpp \
     pcapthread.cpp \
-    tablepacket.cpp
+    tablepacket.cpp \
+    textpacket.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -25,7 +26,8 @@ HEADERS  += mainwindow.h \
     pcapthread.h \
     tablepacket.h \
     pcapthread.h \
-    tablepacket.h
+    tablepacket.h \
+    textpacket.h
 
 FORMS    += mainwindow.ui
 

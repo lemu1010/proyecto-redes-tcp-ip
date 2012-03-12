@@ -17,11 +17,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void  MainWindow::initGUI()
 {
-    setWindowTitle("WireFisher");
+    setWindowTitle("WireFish");
     setWindowIcon(QIcon(":/images/logo.png"));
 
     int ancho = QApplication::desktop()->width();
-    int alto = QApplication::desktop()->height();
+    alto = QApplication::desktop()->height();
     setGeometry(0,0,ancho,alto);
 
     QRect geometry = this->geometry();
@@ -178,10 +178,17 @@ void MainWindow::slotPlayCaptura()
 
         if( pcapThread->initInterface() ) {
 
-            tablePacket = new TablePacket;
-            connect(tablePacket, SIGNAL(cellClicked(int,int)), tablePacket, SLOT(selectRow(int)));
+            splitPane = new QSplitter(Qt::Vertical);
 
-            setCentralWidget(tablePacket);
+            tablePacket = new TablePacket;
+            tablePacket->setMinimumHeight(alto-250);
+            connect(tablePacket, SIGNAL(cellClicked(int,int)), tablePacket, SLOT(selectRow(int)));
+            splitPane->addWidget(tablePacket);
+
+            textPacket = new TextPacket();
+            splitPane->addWidget(textPacket);
+
+            setCentralWidget(splitPane);
 
             pcapThread->setTablePacket(tablePacket);
 
@@ -207,35 +214,25 @@ void MainWindow::slotPlayCaptura()
 
 void MainWindow::slotStopCaptura()
 {
-    qDebug() << "A";
     if( not pcapThread->started )
         return;
 
-    qDebug() << "B";
     if( pcapThread->handler == NULL )
         return;
 
-    qDebug() << "C";
     pcap_breakloop(pcapThread->handler);
-    qDebug() << "D";
     pcap_close(pcapThread->handler);
 
-    qDebug() << "E";
     if( pcapThread->isRunning() ) {
-        qDebug() << "F";
         pcapThread->resetValues();
         pcapThread->terminate();
-
     }
+
     pcapThread->started = false;
 
-    qDebug() << "G";
     actionStopCapture->setEnabled(false);
-    qDebug() << "H";
     actionPlayCapture->setEnabled(true);
-    qDebug() << "I";
     actionFlujoTcp->setEnabled(true);
-
 
 }
 
@@ -268,18 +265,20 @@ void MainWindow::slotFlowTcp()
 
 void MainWindow::slotAcercaDe()
 {
-    QString titulo = "<H2> WireFisher </H2>";
+    QString titulo = "<H2> WireFish </H2>";
     QString version = "<H5> Version 1.0 </H5> <br>";
     QString descripcion1 = "Es un pequeño sistema que muestra el flujo TCP <br><br>";
     QString desarrollador1 = "Desarrollado por: <br><br>";
     QString desarrollador2 = "Jonathan Monsalve <br> Julio Muchacho <br> Fernando Osuna <br> Antonio López <br><br>";
     QString tituloEmail = "Dirección electronica: <br>";
     QString email = "j.jmonsalveg@gmail.com <br> muchacho.julio@gmail.com <br> osunaf@ula.ve <br> antoniol@ula.ve <br><br>";
+    QString credito = "Postscript Python: <br><br>";
+    QString desarrollador3 = "Miguel Flores <br><b><br>";
     QString lugar = "Universidad de los Andes, 2012.";
 
     QMessageBox::about(this, tr("Acerca de Proyecto Redes"), "<center>" + titulo +
                        version + descripcion1 + desarrollador1 + desarrollador2 +
-                       tituloEmail + email + "<font color = #FF8000>" + lugar +
+                       tituloEmail + email + credito + desarrollador3 + "<font color = #FF8000>" + lugar +
                        "</font>" + "</center>");
 }
 
