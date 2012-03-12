@@ -16,6 +16,7 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
     FIN=SYN=RST= PUSH= ACK= URG= ECE= CWR=false;
     setAcusado(-100);
     setAckRepetido(false);
+    setRetransmision(false);
 
 
     size_ip = IP_HL(ip)*4;
@@ -248,6 +249,16 @@ void Packet::setAckRepetido(bool ackRepetido)
 bool Packet::getAckRepetido()
 {
     return ackRepetido;
+}
+
+void Packet::setRetransmision(bool  retransmision)
+{
+    this->retransmision=retransmision;
+}
+
+bool Packet::getRestransmision()
+{
+    return this->retransmision;
 }
 
 void Packet::setFlag(u_char flags)

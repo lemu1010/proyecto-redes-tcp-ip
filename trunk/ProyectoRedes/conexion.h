@@ -23,6 +23,7 @@ class Conexion
 
     int numeroConexion;
     int contadorPaquetes;
+    int contadorPaquetesPintados;
     double RTTEstimado;
 
     //  QString prueba;
@@ -39,9 +40,15 @@ public:
     void setNodoCliente(int );
     void setNodoServidor(int );
     void setNumeroConexion(int);
+    void setcontadorPaquetesPintados(int);
+    void setcontadorPaquetes(int);
+
     int  getNodoCliente();
     int  getNodoServidor();
     int  getNumeroConexion();
+    int  getcontadorPaquetesPintados( );
+    int  getcontadorPaquetes();
+
     void evaluarNuevoPaquete(Packet,int ,int,fstream &);
     void imprimirListas();
     double actualizarRttEstimado(double, double);
