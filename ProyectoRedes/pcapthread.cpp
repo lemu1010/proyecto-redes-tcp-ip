@@ -312,6 +312,12 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     hashConexiones.remove(key);
     hashConexiones.insert(key,conexionActual);
 
+    if(countPacket>110)
+    {
+        conexionActual.imprimirListas();
+
+    }
+
     return;
 }
 
