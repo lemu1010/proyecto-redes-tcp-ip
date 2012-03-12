@@ -236,17 +236,33 @@ void MainWindow::slotStopCaptura()
     qDebug() << "I";
     actionFlujoTcp->setEnabled(true);
 
+
 }
 
 void MainWindow::slotFlowTcp()
 {
-//    int ret = QProcess::execute("sh ./Proyectopy/execImage.sh");
 
-//    if( !(ret == QProcess::NormalExit) )
-//        messageBox("ERROR: Grafica Flujo TCP no creada.");
+    QProcess bash;
+    bash.setWorkingDirectory("Proyectopy/");
+    qDebug()<<bash.workingDirectory()<<" este es el directorio"<<endl;
+    bash.start("bash");
 
-    QProcess *script = new QProcess(this);
-    script->start("sudo sh execImage.sh");
+
+    if(!bash.waitForStarted()){
+        messageBox("ERROR: bash no responde grafica no podra ser creada");
+
+    }
+    bash.write("sh execImage.sh");
+
+
+    bash.closeWriteChannel();
+    if(!bash.waitForFinished()){
+       messageBox("ERROR: grafica consumiendo recursos en sistemas ");
+
+    }
+    QByteArray response = bash.readAll();
+    qDebug() << response.data();
+    bash.close();
 
 }
 

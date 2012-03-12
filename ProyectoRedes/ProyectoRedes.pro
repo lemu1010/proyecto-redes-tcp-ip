@@ -51,5 +51,23 @@ OTHER_FILES += \
     Proyectopy/execImage.sh \
     Proyectopy/canvas.py \
     Proyectopy/svg.py \
-    trazaReal.tr
+    trazaReal.tr \
+    images/zoom-out.png \
+    images/zoom-normal.png \
+    images/zoom-in.png \
+    images/wifi_modem.png \
+    images/ver.png \
+    images/stop.png \
+    images/play.png \
+    images/nuevo.png \
+    images/logo.png \
+    images/guardar.png \
+    images/flowTCP.png \
+    images/ethernet_card.png \
+    images/cerrar.png \
+    images/cancel.png \
+    images/ajustar.png \
+    images/acercade.png \
+    images/aceptar.png \
+    images/abrir.png
 
