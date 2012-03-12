@@ -1,7 +1,7 @@
 #ifndef PACKET_H
 #define PACKET_H
 #include <QString>
-#include<struct.h>
+#include <struct.h>
 
 class Packet
 {

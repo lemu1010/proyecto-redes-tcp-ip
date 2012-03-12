@@ -32,6 +32,8 @@ private:
     void enableEstandar(bool enabled);
     void messageBox(std::string message);
     void closeEvent(QCloseEvent *);
+    void clearEvent();
+    void clearWidgets();
 
 private slots:
 

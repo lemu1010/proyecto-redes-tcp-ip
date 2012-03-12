@@ -2,6 +2,7 @@
 #include <iostream>
 
 using namespace std;
+double tiempoB;
 
 Packet::Packet()
 {
@@ -328,9 +329,10 @@ bool Packet::getCWR()
 double Packet::calculo_time(const pcap_pkthdr * header)
 {
 
-    static double tiempoBase=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
+    if( numberPacketCaptured == 1 )
+        tiempoB = header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
+
     double tiempoNuevo=header->ts.tv_sec +((double) header->ts.tv_usec) / 1000000;
 
-
-    return tiempoNuevo-tiempoBase;
+    return tiempoNuevo-tiempoB;
 }
