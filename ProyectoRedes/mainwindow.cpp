@@ -78,6 +78,12 @@ void MainWindow::createAction()
     actionFlujoTcp->setEnabled(false);
     connect(actionFlujoTcp, SIGNAL(triggered()), this, SLOT(slotFlowTcp()));
 
+    actionTraza = new QAction(tr("Archivo Traza"), this);
+    actionTraza->setStatusTip("Muestra el archivo de trazas");
+    actionTraza->setToolTip("Muestra el archivo de trazas");
+    actionTraza->setEnabled(false);
+    connect(actionTraza, SIGNAL(triggered()), this, SLOT(slotFileTraza()));
+
     actionAcerca = new QAction(QIcon(":/images/acercade.png"),tr("Acerca"),this);
     connect(actionAcerca, SIGNAL(triggered()), this, SLOT(slotAcercaDe()));
 }
@@ -124,6 +130,9 @@ void MainWindow::createMenu()
 
     menuGrafica = menuBar()->addMenu("&Grafica");
     menuGrafica->addAction(actionFlujoTcp);
+
+    menuTraza = menuBar()->addMenu("&Traza");
+    menuTraza->addAction(actionTraza);
 
     menuAyuda = menuBar()->addMenu("A&yuda");
     menuAyuda->addAction(actionAcerca);
@@ -233,6 +242,7 @@ void MainWindow::slotStopCaptura()
     actionStopCapture->setEnabled(false);
     actionPlayCapture->setEnabled(true);
     actionFlujoTcp->setEnabled(true);
+    actionTraza->setEnabled(true);
 
 }
 
@@ -261,6 +271,28 @@ void MainWindow::slotFlowTcp()
     qDebug() << response.data();
     bash.close();
 
+}
+
+void MainWindow::slotFileTraza()
+{
+    QProcess bash;
+    bash.setWorkingDirectory("Proyectopy/");
+    bash.start("bash");
+
+    if(!bash.waitForStarted()){
+        messageBox("ERROR: bash no responde grafica no podra ser creada");
+
+    }
+    bash.write("gedit trazaReal.tr &");
+
+
+    bash.closeWriteChannel();
+    if(!bash.waitForFinished()){
+        messageBox("ERROR: grafica consumiendo recursos en sistemas ");
+
+    }
+
+    bash.close();
 }
 
 void MainWindow::clearEvent()

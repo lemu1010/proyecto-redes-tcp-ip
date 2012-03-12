@@ -43,6 +43,7 @@ private slots:
     void slotPlayCaptura();
     void slotStopCaptura();
     void slotFlowTcp();
+    void slotFileTraza();
     void slotAcercaDe();
 
 private:
@@ -54,6 +55,7 @@ private:
     QAction *actionPlayCapture;
     QAction *actionStopCapture;
     QAction *actionFlujoTcp;
+    QAction *actionTraza;
     QAction *actionAcerca;
 
     QComboBox *boxDevice;
@@ -61,6 +63,7 @@ private:
     QMenu *menuArchivo;
     QMenu *menuCaptura;
     QMenu *menuGrafica;
+    QMenu *menuTraza;
     QMenu *menuAyuda;
 
     QToolBar *mainToolBar;
