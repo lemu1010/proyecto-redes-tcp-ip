@@ -9,7 +9,6 @@
         <file>images/ethernet_card.png</file>
         <file>images/flowTCP.png</file>
         <file>images/guardar.png</file>
-        <file>images/logo.png</file>
         <file>images/nuevo.png</file>
         <file>images/play.png</file>
         <file>images/stop.png</file>
@@ -18,5 +17,6 @@
         <file>images/zoom-in.png</file>
         <file>images/zoom-normal.png</file>
         <file>images/zoom-out.png</file>
+        <file>images/logo.png</file>
     </qresource>
 </RCC>
