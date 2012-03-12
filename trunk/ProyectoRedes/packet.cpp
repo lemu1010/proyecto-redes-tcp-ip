@@ -226,6 +226,16 @@ int Packet::getDestino()
     return(destino);
 }
 
+void Packet::setAcusado(int numberPacketAcusado)
+{
+    this->numberPacketAcusado=numberPacketAcusado;
+}
+
+int Packet::getAcusado()
+{
+    return this->numberPacketAcusado;
+}
+
 void Packet::setFlag(u_char flags)
 {
 

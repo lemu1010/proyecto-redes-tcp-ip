@@ -6,6 +6,7 @@
 class Packet
 {
     int numberPacketCaptured;
+    int numberPacketAcusado;
     QString IPFuente;
     QString IPDestino;
     u_short portFuente;
@@ -78,6 +79,9 @@ public:
 
     void setDestino(int);
     int  getDestino();
+
+    void setAcusado( int);
+    int getAcusado();
 
     void setFlag(u_char flags);
     bool getFIN();

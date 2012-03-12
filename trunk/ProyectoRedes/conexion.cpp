@@ -149,7 +149,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     }
 
                 }
-                if(i==listaPaqServidor.size())
+ /*ver que pasa aqui*/               if(i==listaPaqServidor.size())
                 {
                     cout<<"no se consigue retransmision"<<endl;
                     exit(0);
@@ -339,6 +339,45 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
         else   //EL cliente envia el SYN+ACK caso atipico pero sucede
         {
             cout<<"CASO NO SOPORTADO 2"<<endl;
+
+            /*else cliente syn +ack*/
+
+            for(i=0;i<listaPaqServidor.size();i++)
+            {
+                if(listaPaqServidor[i].getNextSeq()== packet.getNumAck()) {
+                    listaPaqServidor.removeAt(i);
+                    break;
+                }
+            }
+
+
+            namePacket="tcp";
+            eventType = "+";
+            trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
+            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
+
+            eventType = "-";
+            trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
+            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
+
+            eventType = "r";
+            trace << eventType << " " << packet.getTimeStamp() +RTTEstimado/2 << " " << nodoCliente << " ";
+            trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
+            trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
+            trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
+            ultimoSeqEnviadoCliente=packet.getSeq();
+
+
+
+
+            /*fin else cliente syn+ack*/
+
+
+
         }
 
 
@@ -361,7 +400,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     break;
                 }
             }
-
+/*calcular rttEstimado*/
 
             namePacket="tcp";
             eventType = "+";
