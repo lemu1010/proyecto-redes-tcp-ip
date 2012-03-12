@@ -30,6 +30,7 @@ class Packet
     bool ECE;
     bool CWR;
     bool ackRepetido;
+    bool retransmision;
 
 
 public:
@@ -86,6 +87,9 @@ public:
 
     void setAckRepetido(bool);
     bool getAckRepetido();
+
+    void setRetransmision(bool);
+    bool getRestransmision();
 
     void setFlag(u_char flags);
     bool getFIN();

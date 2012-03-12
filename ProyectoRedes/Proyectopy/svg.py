@@ -49,7 +49,7 @@ class Line:
 		return
 
 	def strarray(self):
-		return "  <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" " % (self.start[0]*500,self.start[1],self.end[0]*500,self.end[1]) + 'style="stroke:rgb(%d,%d,%d);stroke-width:1;%s"/>\n' % (self.color[0],self.color[1],self.color[2],self.style)
+		return "  <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" " % (self.start[0]*5000,self.start[1],self.end[0]*5000,self.end[1]) + 'style="stroke:rgb(%d,%d,%d);stroke-width:1;%s"/>\n' % (self.color[0],self.color[1],self.color[2],self.style)
 
 	
 class Circle:

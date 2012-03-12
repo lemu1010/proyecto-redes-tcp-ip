@@ -315,6 +315,9 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     if(countPacket>110)
     {
         conexionActual.imprimirListas();
+        cout<<"PAQUETES PINTADOS DE CONEXION"<< conexionActual.getcontadorPaquetesPintados()<<endl;
+        cout<<"num Paquetes conexion"<<conexionActual.getcontadorPaquetes()<<endl;
+        cout<<"porcentaje de paquetes pintados"<<((float)conexionActual.getcontadorPaquetesPintados()/(float)conexionActual.getcontadorPaquetes()) *100<<endl;
 
     }
 
@@ -399,7 +402,7 @@ bool PcapThread::openDevice()
 bool PcapThread::compileFilter()
 {
 
-    char filter_exp[] = " tcp and port 80";
+    char filter_exp[] = " tcp and port 80 ";
 
     /* compile the filter expression */
     if (pcap_compile(handler, &fp, filter_exp, 0, net) == -1) {

@@ -1,4 +1,4 @@
-#include "conexion.h"
+    #include "conexion.h"
 
 
 Conexion::Conexion()
@@ -6,11 +6,13 @@ Conexion::Conexion()
     nodoCliente=-1;
     nodoServidor=-1;
     contadorPaquetes = 0;
+    contadorPaquetesPintados=0;
     RTTEstimado=0.0;
 }
 Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TablePacket *& tablePacket)
 {
     this->contadorPaquetes = 0;
+    this->contadorPaquetesPintados=0;
     this->nodoCliente=nodoCliente;
     this->nodoServidor=nodoServidor;
     this->numeroConexion=nuemeroConexion;
@@ -48,9 +50,30 @@ void Conexion:: setNumeroConexion(int numeroConexion)
 {
     this->numeroConexion=numeroConexion;
 }
+
+void Conexion::setcontadorPaquetesPintados(int contadorPaquetesPintados)
+{
+    this->contadorPaquetesPintados;
+}
+
+void Conexion::setcontadorPaquetes(int contadorPaquetes)
+{
+    this->contadorPaquetes=contadorPaquetes;
+}
+
 int Conexion:: getNumeroConexion()
 {
     return(this->numeroConexion);
+}
+
+int Conexion::getcontadorPaquetesPintados()
+{
+    return (this->contadorPaquetesPintados);
+}
+
+int Conexion::getcontadorPaquetes()
+{
+    return( this->contadorPaquetes);
 }
 
 void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstream &trace)
@@ -65,7 +88,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
     contadorPaquetes++;
 
-    tablePacket->addPacket(packet);
+
 
     printf("\n------------------------------CLASS Packet number  %d:------------------------------\n", contadorPaquetes);
 
@@ -99,6 +122,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     if(listaPaqCliente[i].getSeq()==packet.getSeq())
                     {
                         cout<<"PAQUETE PERDIDO ID retransmision"<<listaPaqCliente[i].getId()<<endl;
+                        packet.setRetransmision(true);
                         listaPaqCliente.removeAt(i);
                         break;
                     }
@@ -144,6 +168,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     if(listaPaqServidor[i].getSeq()==packet.getSeq())
                     {
                         cout<<"informacion duplicada ID retransmision"<<listaPaqServidor[i].getId()<<endl;
+                        packet.setRetransmision(true);
                         listaPaqServidor.removeAt(i);
                         break;
                     }
@@ -167,6 +192,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     printf("ack llego %u ",packet.getNumAck());
                     if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
                     {
+                        packet.setAcusado(listaPaqCliente[i].getNumberPacketCaptured());
                         cout<<"RECONOCIO"<<endl;
                         break;
                     }
@@ -180,7 +206,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     tiempo=packet.getTimeStamp()-RTT/2;
 
                     eventType = "r";
-
+                    contadorPaquetesPintados++;
 
                     trace << eventType << " " << tiempo<< " " << nodoCliente << " ";
                     trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
@@ -214,6 +240,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
 
             eventType = "r";
+            contadorPaquetesPintados++;
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
@@ -240,6 +267,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 {
                     if(listaPaqServidor[i].getSeq()==packet.getSeq())
                     {
+                        packet.setRetransmision(true);
                         listaPaqServidor.removeAt(i);
                         break;
                     }
@@ -262,6 +290,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
                     {
                         cout<<"RECONOCIO"<<endl;
+                        packet.setAcusado(listaPaqCliente[i].getNumberPacketCaptured());
+
                         break;
                     }
                 }
@@ -275,16 +305,13 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
                     tiempo =RTT/2;
 
-
-
-
                     cout<<"RTT"<<RTT<<endl;
                     cout<<"ESTIMADO: SYN"<<RTTEstimado<<endl;
 
 
                     namePacket="tcp";
                     eventType = "r";
-
+                    contadorPaquetesPintados++;
                     typeFlag = listaPaqCliente[i].getSizeData() > 0 ? "DATA" : "SYN";
 
                     trace << eventType << " " <<listaPaqCliente[i].getTimeStamp()+ tiempo<< " " <<nodoCliente << " ";
@@ -314,6 +341,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId() << " " << "SYN+ACK" << endl;
 
             eventType = "r";
+            contadorPaquetesPintados++;
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
@@ -334,6 +362,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             for(i=0;i<listaPaqServidor.size();i++)
             {
                 if(listaPaqServidor[i].getNextSeq()== packet.getNumAck()) {
+                    packet.setAcusado(listaPaqServidor[i].getNumberPacketCaptured());
                     listaPaqServidor.removeAt(i);
                     break;
                 }
@@ -354,22 +383,16 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
 
             eventType = "r";
+            contadorPaquetesPintados++;
             trace << eventType << " " << packet.getTimeStamp() +RTTEstimado/2 << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
             ultimoSeqEnviadoCliente=packet.getSeq();
 
-
-
-
             /*fin else cliente syn+ack*/
 
-
-
         }
-
-
 
     }
 
@@ -387,6 +410,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 if(listaPaqServidor[i].getNextSeq()== packet.getNumAck()) {
 
                     actualizarRttEstimado(packet.getTimeStamp(),listaPaqServidor[i].getTimeStamp());
+                    packet.setAcusado(listaPaqServidor[i].getNumberPacketCaptured());
                     listaPaqServidor.removeAt(i);
                     break;
                 }
@@ -407,6 +431,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
             eventType = "r";
+            contadorPaquetesPintados++;
             trace << eventType << " " << packet.getTimeStamp() +RTTEstimado/2 << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
@@ -426,6 +451,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     printf("ack llego %u",packet.getNumAck());
                     if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
                     {
+                        packet.setAcusado(listaPaqCliente[i].getNumberPacketCaptured());
                         cout<<"ENTRO RECONOCIO"<<endl;
                         break;
                     }
@@ -446,6 +472,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     cout<<"antes de escribir en else"<<endl;
                     namePacket="tcp";
                     eventType = "r";
+                    contadorPaquetesPintados++;
                     trace << eventType << " " << listaPaqCliente[i].getTimeStamp()+tiempo<< " " <<nodoCliente << " ";
                     trace << nodoServidor << " " << namePacket << " " << listaPaqCliente[i].getSize() << " ";
                     trace << banderas << " " <<  listaPaqCliente[i].getPortFuente()<< " " <<listaPaqCliente[i].getPortDestino() << " ";
@@ -471,6 +498,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " <<  packet.getId() << " " << "ACK PURO" << endl;
 
             eventType = "r";
+            contadorPaquetesPintados++;
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
@@ -525,6 +553,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
 
             eventType = "r";
+            contadorPaquetesPintados++;
             trace << eventType << " " << packet.getTimeStamp() <<" "<< nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
@@ -538,7 +567,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
     }
 
-
+      tablePacket->addPacket(packet);
 }
 
 void Conexion::imprimirListas()
@@ -548,8 +577,8 @@ void Conexion::imprimirListas()
     {
         cout<<"paquete i="<<i<<endl;
         cout<<" siguiente seq"<<listaPaqCliente[i].getNextSeq()<<endl;
-        printf("ack  %u",listaPaqCliente[i].getNumAck());
-        printf("id  %u",listaPaqCliente[i].getId());
+        printf("ack  %u \n",listaPaqCliente[i].getNumAck());
+        printf("id  %u \n",listaPaqCliente[i].getId());
 
     }
 
@@ -558,8 +587,8 @@ void Conexion::imprimirListas()
     {
         cout<<"paquete i="<<i<<endl;
         cout<<" siguiente seq"<<listaPaqServidor[i].getNextSeq()<<endl;
-        printf("ack  %u",listaPaqServidor[i].getNumAck());
-        printf("id  %u",listaPaqServidor[i].getId());
+        printf("ack  %u \n",listaPaqServidor[i].getNumAck());
+        printf("id  %u\n",listaPaqServidor[i].getId());
 
     }
 }
