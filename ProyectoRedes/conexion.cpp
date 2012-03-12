@@ -106,8 +106,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 }
                 if(i==listaPaqCliente.size())
                 {
-                    cout<<"no se consigue retransmision"<<endl;
-                    exit(0);
+                    cout<<"MOSCA no se consigue retransmision"<<endl;
+                   // exit(0);
                 }
 
             }
@@ -151,8 +151,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 }
  /*ver que pasa aqui*/               if(i==listaPaqServidor.size())
                 {
-                    cout<<"no se consigue retransmision"<<endl;
-                    exit(0);
+                    cout<<"MOSCA no se consigue retransmision"<<endl;
+                  //  exit(0);
                 }
 
             }
@@ -247,8 +247,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 }
                 if(i==listaPaqServidor.size())
                 {
-                    cout<<"no se consigue retransmision 2"<<endl;
-                    exit(0);
+                    cout<<"MOSCA no se consigue retransmision 2"<<endl;
+                   // exit(0);
                 }
 
             }
@@ -268,18 +268,13 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 cout<<"aqui salio i"<<i<<endl;
                 if(i<listaPaqCliente.size())
                 {
-                    // cout<<"num ack"<< ntohl(packet.getNumAck());
-                    cout<<"siguiente seq PAQUETE"<<listaPaqCliente[i].getNextSeq()<<endl;
-                    RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
 
-                    //cout<<"NO"<<endl;
+                    cout<<"siguiente seq PAQUETE"<<listaPaqCliente[i].getNextSeq()<<endl;
+                    RTT=actualizarRttEstimado(packet.getTimeStamp(),listaPaqCliente[i].getTimeStamp());
+
+
                     tiempo =RTT/2;
 
-                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-                         RTTEstimado  =	 RTT ;
-
-                    else
-                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
 
 
 
@@ -306,7 +301,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 tiempo=RTTEstimado/2;
             }
             namePacket="ack";
-            eventType = "+";  /*OJO YA AQUI NO SERA RTT/2 sino el tiempo del paquete -este RTT/2*/
+            eventType = "+";
             trace << eventType << " " << packet.getTimeStamp()-tiempo << " " << nodoServidor << " ";
             trace << nodoCliente << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
@@ -391,18 +386,12 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             {
                 if(listaPaqServidor[i].getNextSeq()== packet.getNumAck()) {
 
-                    RTT=(packet.getTimeStamp()-listaPaqServidor[i].getTimeStamp());
-
-                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-                         RTTEstimado  =	 RTT;
-
-                    else
-                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
+                    actualizarRttEstimado(packet.getTimeStamp(),listaPaqServidor[i].getTimeStamp());
                     listaPaqServidor.removeAt(i);
                     break;
                 }
             }
-/*calcular rttEstimado*/
+
 
             namePacket="tcp";
             eventType = "+";
@@ -447,15 +436,9 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     //cout<<"num ack"<< ntohl(packet.getNumAck());
                     cout<<"siguiente seq"<<listaPaqCliente[i].getNextSeq()<<endl;
 
-                    RTT=(packet.getTimeStamp()-listaPaqCliente[i].getTimeStamp());
+                    RTT=actualizarRttEstimado(packet.getTimeStamp(),listaPaqCliente[i].getTimeStamp());
                     //cout<<"NO"<<endl;
                     tiempo=RTT/2;
-
-                    if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-                         RTTEstimado  =	 RTT;
-
-                    else
-                         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
 
                     cout<<"RTT"<<RTT<<endl;
                     cout<<"ESTIMADO: SYN"<<RTTEstimado<<endl;
