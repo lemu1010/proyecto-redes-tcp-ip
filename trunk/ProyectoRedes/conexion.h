@@ -17,7 +17,7 @@ class Conexion
     /* Entonces el cliente sera el que inicie la conversacion */
     int nodoCliente;
     int nodoServidor;
-    unsigned int ultimoACKRecibidoCliente;
+    unsigned int ultimoACKEnviadoCliente;
     unsigned int ultimoSeqEnviadoCliente;
     unsigned int ultimoACKRecibidoServidor;
     unsigned int ultimoSeqEnviadoServidor;
