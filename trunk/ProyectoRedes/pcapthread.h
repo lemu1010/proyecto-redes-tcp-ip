@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QMutex>
 #include <tablepacket.h>
+#include <textpacket.h>
 
 #define LOOP_FOREVER -1
 
@@ -43,6 +44,7 @@ public:
     void resetValues();
 
     void setTablePacket(TablePacket *&);
+    void setTextPacket(TextPacket *&);
 
     /* Thread Functions */
     void run();

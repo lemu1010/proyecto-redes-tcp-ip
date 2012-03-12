@@ -5,6 +5,7 @@
 
 class Packet
 {
+
     int numberPacketCaptured;
     int numberPacketAcusado;
     QString IPFuente;

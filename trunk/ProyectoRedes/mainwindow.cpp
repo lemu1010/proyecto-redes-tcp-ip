@@ -181,7 +181,6 @@ void MainWindow::slotPlayCaptura()
             splitPane = new QSplitter(Qt::Vertical);
 
             tablePacket = new TablePacket;
-
             connect(tablePacket, SIGNAL(cellClicked(int,int)), tablePacket, SLOT(selectRow(int)));
             splitPane->addWidget(tablePacket);
 
@@ -191,6 +190,7 @@ void MainWindow::slotPlayCaptura()
             setCentralWidget(splitPane);
 
             pcapThread->setTablePacket(tablePacket);
+            pcapThread->setTextPacket(textPacket);
 
             pcapThread->started = true;
             pcapThread->start();
