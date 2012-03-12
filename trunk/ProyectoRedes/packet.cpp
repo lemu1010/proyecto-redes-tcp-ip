@@ -13,6 +13,8 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
     int size_ip;
     int size_tcp;
     FIN=SYN=RST= PUSH= ACK= URG= ECE= CWR=false;
+    setAcusado(-100);
+    setAckRepetido(false);
 
 
     size_ip = IP_HL(ip)*4;
@@ -234,6 +236,17 @@ void Packet::setAcusado(int numberPacketAcusado)
 int Packet::getAcusado()
 {
     return this->numberPacketAcusado;
+}
+
+void Packet::setAckRepetido(bool ackRepetido)
+{
+    this->ackRepetido=ackRepetido;
+}
+
+
+bool Packet::getAckRepetido()
+{
+    return ackRepetido;
 }
 
 void Packet::setFlag(u_char flags)

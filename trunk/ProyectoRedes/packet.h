@@ -29,6 +29,7 @@ class Packet
     bool URG;
     bool ECE;
     bool CWR;
+    bool ackRepetido;
 
 
 public:
@@ -82,6 +83,9 @@ public:
 
     void setAcusado( int);
     int getAcusado();
+
+    void setAckRepetido(bool);
+    bool getAckRepetido();
 
     void setFlag(u_char flags);
     bool getFIN();
