@@ -1,4 +1,4 @@
-    #include "conexion.h"
+#include "conexion.h"
 
 
 Conexion::Conexion()
@@ -9,7 +9,7 @@ Conexion::Conexion()
     contadorPaquetesPintados=0;
     RTTEstimado=0.0;
 }
-Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TablePacket *& tablePacket, TextPacket *& textPacket)
+Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TablePacket *& tablePacket)
 {
     this->contadorPaquetes = 0;
     this->contadorPaquetesPintados=0;
@@ -19,8 +19,8 @@ Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TableP
     this->RTTEstimado=0.0;
     this->ultimoSeqEnviadoCliente=this->ultimoSeqEnviadoServidor=0;
 
+
     this->tablePacket = &(*tablePacket);
-    this->textPacket = &(*textPacket);
 
     cout<<"incializado"<<contadorPaquetes<<endl;
 
@@ -88,6 +88,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
     contadorPaquetes++;
 
+
+
     printf("\n------------------------------CLASS Packet number  %d:------------------------------\n", contadorPaquetes);
 
     int i;
@@ -129,7 +131,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 if(i==listaPaqCliente.size())
                 {
                     cout<<"MOSCA no se consigue retransmision"<<endl;
-                   // exit(0);
+                    // exit(0);
                 }
 
             }
@@ -148,6 +150,14 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << typeFlag << endl;
+
+            if(packet.getACK())
+            {
+                if(ultimoACKEnviadoCliente==packet.getNumAck())
+                    packet.setAckRepetido(true);
+
+                ultimoACKEnviadoCliente=packet.getNumAck();
+            }
 
             ultimoSeqEnviadoCliente=packet.getSeq();
             listaPaqCliente.append(packet);
@@ -172,10 +182,10 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     }
 
                 }
- /*ver que pasa aqui*/               if(i==listaPaqServidor.size())
+                /*ver que pasa aqui*/               if(i==listaPaqServidor.size())
                 {
                     cout<<"MOSCA no se consigue retransmision"<<endl;
-                  //  exit(0);
+                    //  exit(0);
                 }
 
             }
@@ -191,7 +201,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
                     {
                         packet.setAcusado(listaPaqCliente[i].getNumberPacketCaptured());
-                        cout<<"RECONOCIO"<<endl;
+                        cout<<"RECONOCIO"<<packet.getAcusado()<<endl;
                         break;
                     }
                 }
@@ -214,6 +224,14 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
 
                 }
+
+
+                if(ultimoACKRecibidoServidor==packet.getNumAck())
+                    packet.setAckRepetido(true);
+
+                ultimoACKRecibidoServidor=packet.getNumAck();
+
+
 
             }
 
@@ -274,7 +292,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                 if(i==listaPaqServidor.size())
                 {
                     cout<<"MOSCA no se consigue retransmision 2"<<endl;
-                   // exit(0);
+                    // exit(0);
                 }
 
             }
@@ -287,9 +305,9 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     printf("ack llego %u ",packet.getNumAck());
                     if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
                     {
-                        cout<<"RECONOCIO"<<endl;
-                        packet.setAcusado(listaPaqCliente[i].getNumberPacketCaptured());
 
+                        packet.setAcusado(listaPaqCliente[i].getNumberPacketCaptured());
+                        cout<<"RECONOCIO"<<packet.getAcusado()<<endl;
                         break;
                     }
                 }
@@ -325,6 +343,11 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             {
                 tiempo=RTTEstimado/2;
             }
+
+
+
+
+
             namePacket="ack";
             eventType = "+";
             trace << eventType << " " << packet.getTimeStamp()-tiempo << " " << nodoServidor << " ";
@@ -345,6 +368,11 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
 
+            if(ultimoACKRecibidoServidor==packet.getNumAck())
+                packet.setAckRepetido(true);
+
+            ultimoACKRecibidoServidor=packet.getNumAck();
+
             ultimoSeqEnviadoServidor=packet.getSeq();
             listaPaqServidor.append(packet);
 
@@ -361,6 +389,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             {
                 if(listaPaqServidor[i].getNextSeq()== packet.getNumAck()) {
                     packet.setAcusado(listaPaqServidor[i].getNumberPacketCaptured());
+                    cout<<"RECONOCIO"<<packet.getAcusado()<<endl;
                     listaPaqServidor.removeAt(i);
                     break;
                 }
@@ -387,6 +416,11 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
             ultimoSeqEnviadoCliente=packet.getSeq();
+
+            if(ultimoACKEnviadoCliente==packet.getNumAck())
+                packet.setAckRepetido(true);
+
+            ultimoACKEnviadoCliente=packet.getNumAck();
 
             /*fin else cliente syn+ack*/
 
@@ -409,6 +443,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
 
                     actualizarRttEstimado(packet.getTimeStamp(),listaPaqServidor[i].getTimeStamp());
                     packet.setAcusado(listaPaqServidor[i].getNumberPacketCaptured());
+                    cout<<"RECONOCIO"<<packet.getAcusado()<<endl;
                     listaPaqServidor.removeAt(i);
                     break;
                 }
@@ -435,6 +470,11 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
             ultimoSeqEnviadoCliente=packet.getSeq();
+
+            if(ultimoACKEnviadoCliente==packet.getNumAck())
+                packet.setAckRepetido(true);
+
+            ultimoACKEnviadoCliente=packet.getNumAck();
         }
 
         else
@@ -450,7 +490,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
                     if(listaPaqCliente[i].getNextSeq()== packet.getNumAck())
                     {
                         packet.setAcusado(listaPaqCliente[i].getNumberPacketCaptured());
-                        cout<<"ENTRO RECONOCIO"<<endl;
+                        cout<<"RECONOCIO"<<packet.getAcusado()<<endl;
                         break;
                     }
                 }
@@ -503,6 +543,12 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
             ultimoSeqEnviadoServidor=packet.getSeq();
+
+            if(ultimoACKRecibidoServidor==packet.getNumAck())
+                packet.setAckRepetido(true);
+
+            ultimoACKRecibidoServidor=packet.getNumAck();
+
             listaPaqCliente.removeAt(i);
             listaPaqServidor.append(packet);
 
@@ -531,6 +577,12 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
 
             ultimoSeqEnviadoCliente=packet.getSeq();
+
+            if(ultimoACKEnviadoCliente==packet.getNumAck())
+                packet.setAckRepetido(true);
+
+            ultimoACKEnviadoCliente=packet.getNumAck();
+
             listaPaqCliente.append(packet);
 
         }
@@ -557,16 +609,19 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
 
-            ultimoACKRecibidoServidor=packet.getSeq();
+            ultimoSeqEnviadoServidor=packet.getSeq();
 
+            if(ultimoACKRecibidoServidor==packet.getNumAck())
+                packet.setAckRepetido(true);
+
+            ultimoACKRecibidoServidor=packet.getNumAck();
             listaPaqServidor.append(packet);
         }
 
 
     }
 
-      tablePacket->addPacket(packet);
-      textPacket->setListPackect(packet);
+    tablePacket->addPacket(packet);
 }
 
 void Conexion::imprimirListas()
@@ -598,10 +653,10 @@ double Conexion::actualizarRttEstimado(double tLlegada, double tSalida)
 
 
     if(RTTEstimado==0.0)                              //no hay muestras esta es la primera?
-         RTTEstimado  =	 RTT;
+        RTTEstimado  =	 RTT;
 
     else
-         RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
+        RTTEstimado  =	 0.875*RTTEstimado +	0.125	* RTT;
 
     return RTT;
 }
