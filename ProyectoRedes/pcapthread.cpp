@@ -8,8 +8,9 @@ int countNodes  =-1;
 QHash<QString,int> hashNodos;
 QHash<QString,Conexion> hashConexiones;
 double tiempoBase;
+ofstream file;
 
-fstream trace("../ProyectoRedes/Proyectopy/trazaReal.tr",ios::out);
+//fstream trace("../ProyectoRedes/Proyectopy/trazaReal.tr",ios::out);
 
 // Calcular tiempo
 float calculo_time(const struct pcap_pkthdr *header)
@@ -309,7 +310,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     //-----------------------------CODIGO DE CLASE---------------------------------------
     Packet paqueteEvaluado(header,ip,tcp,countPacket);
-    conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),trace);
+    conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),file);
     hashConexiones.remove(key);
     hashConexiones.insert(key,conexionActual);
 
@@ -402,13 +403,13 @@ bool PcapThread::openDevice()
 
 bool PcapThread::compileFilter()
 {
-
-    char filter_exp[] = " tcp and port 80 and host 192.168.10.113";
+    //and host 192.168.1.100
+    char filter_exp[] = " tcp and port 80";
 
     /* compile the filter expression */
     if (pcap_compile(handler, &fp, filter_exp, 0, net) == -1) {
-//        fprintf(stderr, "Couldn't parse filter %s: %s\n",
-//                filter_exp, pcap_geterr(handler));
+        //        fprintf(stderr, "Couldn't parse filter %s: %s\n",
+        //                filter_exp, pcap_geterr(handler));
 
         cout << "Couldn't parse filter %s: " << errbuf << endl;
 
@@ -423,8 +424,8 @@ bool PcapThread::execFilter()
 {
     /* apply the compiled filter */
     if (pcap_setfilter(handler, &fp) == -1) {
-//        fprintf(stderr, "Couldn't install filter %s: %s\n",
-//                filter_exp, pcap_geterr(handler));
+        //        fprintf(stderr, "Couldn't install filter %s: %s\n",
+        //                filter_exp, pcap_geterr(handler));
 
         cout << "Couldn't install filter %s: " << errbuf << endl;
         return false;
@@ -466,6 +467,17 @@ void PcapThread::setTablePacket(TablePacket *& tablePacket)
 void PcapThread::setTextPacket(TextPacket *& textPacket)
 {
     textPacketThread = textPacket;
+}
+
+void PcapThread::closeFile()
+{
+    file.close();
+}
+
+bool PcapThread::setFile(QString path)
+{
+    file.open(path.toAscii());
+    return file.is_open();
 }
 
 PcapThread::~PcapThread()

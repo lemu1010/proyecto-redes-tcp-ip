@@ -76,7 +76,7 @@ int Conexion::getcontadorPaquetes()
     return( this->contadorPaquetes);
 }
 
-void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstream &trace)
+void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstream &trace)
 {
 
     /*Para archivo de traza*/
@@ -192,8 +192,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
 
             eventType = "-";
-            double timeAux=packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:packet.getTimeStamp();
-            trace << eventType << " " << timeAux << " " << nodoCliente << " ";
+//            double timeAux=packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:;
+            trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << typeFlag << endl;
@@ -615,8 +615,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, fstrea
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
 
             eventType = "-";
-            double timeAux = packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:packet.getTimeStamp();
-            trace << eventType << " " << timeAux << " " << nodoCliente << " ";
+           // double timeAux = packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:packet.getTimeStamp();
+            trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;

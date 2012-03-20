@@ -24,6 +24,7 @@ class PcapThread : public QThread
 {
     Q_OBJECT
 
+private:
     char errbuf[PCAP_ERRBUF_SIZE];
     bpf_u_int32 net;
     struct bpf_program fp;
@@ -39,13 +40,15 @@ public:
     QString getInterfaceName();
     QList<Interface> getInterfaces();
 
+
     bool initInterface();
     std::string getPcapError();
     void resetValues();
 
     void setTablePacket(TablePacket *&);
     void setTextPacket(TextPacket *&);
-
+    void closeFile();
+    bool setFile(QString file);
     /* Thread Functions */
     void run();
     ~PcapThread();
@@ -55,6 +58,7 @@ private:
     bool openDevice();
     bool compileFilter();
     bool execFilter();
+
 
 public slots:
     void setInterfaceName(QString interfaceName);

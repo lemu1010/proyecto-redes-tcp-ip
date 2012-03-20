@@ -179,6 +179,7 @@ void MainWindow::slotPlayCaptura()
 {
 
     QString name = boxDevice->currentText();
+    QString nameFile("../ProyectoRedes/Proyectopy/trazaReal.tr");
 
     pcapThread = new PcapThread;
     pcapThread->setInterfaceName(name);
@@ -200,6 +201,9 @@ void MainWindow::slotPlayCaptura()
 
             pcapThread->setTablePacket(tablePacket);
             pcapThread->setTextPacket(textPacket);
+
+            if(!pcapThread->setFile(nameFile))
+                 messageBox("ERROR: no ha sido posible establecer archivo de traza");
 
             pcapThread->started = true;
             pcapThread->start();
@@ -234,6 +238,7 @@ void MainWindow::slotStopCaptura()
 
     if( pcapThread->isRunning() ) {
         pcapThread->resetValues();
+        pcapThread->closeFile();
         pcapThread->terminate();
     }
 
