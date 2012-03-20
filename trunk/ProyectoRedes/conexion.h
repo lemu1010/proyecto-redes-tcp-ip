@@ -50,7 +50,7 @@ public:
     int  getcontadorPaquetesPintados( );
     int  getcontadorPaquetes();
 
-    void evaluarNuevoPaquete(Packet,int ,int,fstream &);
+    void evaluarNuevoPaquete(Packet,int ,int,ofstream &);
     void imprimirListas();
     double actualizarRttEstimado(double, double);
 
