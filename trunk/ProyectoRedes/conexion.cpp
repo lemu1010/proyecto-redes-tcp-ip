@@ -168,8 +168,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
                     trace << listaPaqServidor[i].getCwnd() << " " <<listaPaqServidor[i].getSeq() << " " << listaPaqServidor[i].getId() << " "<< typeFlag << endl;
 
 
-//                      if(ultimoACKEnviadoCliente==packet.getNumAck() and listaPaqServidor[i].getSizeData()>0)
-//                            packet.setAckRepetido(true);
+                    //                      if(ultimoACKEnviadoCliente==packet.getNumAck() and listaPaqServidor[i].getSizeData()>0)
+                    //                            packet.setAckRepetido(true);
 
 
                     listaPaqServidor.removeAt(i);
@@ -192,22 +192,23 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
 
             eventType = "-";
-//            double timeAux=packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:;
+            //            double timeAux=packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:;
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << typeFlag << endl;
 
 
-             ultimoACKEnviadoCliente=packet.getNumAck();
+            ultimoACKEnviadoCliente=packet.getNumAck();
 
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoCliente=packet.getSeq();
 
-            ultimoSeqEnviadoCliente=packet.getSeq();
             listaPaqCliente.append(packet);
 
         }
 
-      else{           //En el caso SYN es enviado por el Servidor caso atipico pero sucede
+        else{           //En el caso SYN es enviado por el Servidor caso atipico pero sucede
             cout<<"CASO NO SOPORTADO 1"<<endl;
             double tiempo=-1;
             /*ERROR*/
@@ -269,8 +270,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
                 }
 
 
-//                if(ultimoACKRecibidoServidor==packet.getNumAck())
-//                    packet.setAckRepetido(true);
+                //                if(ultimoACKRecibidoServidor==packet.getNumAck())
+                //                    packet.setAckRepetido(true);
 
                 ultimoACKRecibidoServidor=packet.getNumAck();
 
@@ -305,7 +306,8 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " "<< typeFlag << endl;
 
-            ultimoSeqEnviadoServidor=packet.getSeq();
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoServidor=packet.getSeq();
             listaPaqServidor.append(packet);
             /*ERROR*/
 
@@ -411,12 +413,12 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
 
-//            if(ultimoACKRecibidoServidor==packet.getNumAck())
-//                packet.setAckRepetido(true);
+            //            if(ultimoACKRecibidoServidor==packet.getNumAck())
+            //                packet.setAckRepetido(true);
 
             ultimoACKRecibidoServidor=packet.getNumAck();
-
-            ultimoSeqEnviadoServidor=packet.getSeq();
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoServidor=packet.getSeq();
             listaPaqServidor.append(packet);
 
 
@@ -458,10 +460,12 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "SYN+ACK" << endl;
-            ultimoSeqEnviadoCliente=packet.getSeq();
 
-//            if(ultimoACKEnviadoCliente==packet.getNumAck())
-//                packet.setAckRepetido(true);
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoCliente=packet.getSeq();
+
+            //            if(ultimoACKEnviadoCliente==packet.getNumAck())
+            //                packet.setAckRepetido(true);
 
             ultimoACKEnviadoCliente=packet.getNumAck();
             listaPaqCliente.append(packet);
@@ -513,10 +517,12 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
-            ultimoSeqEnviadoCliente=packet.getSeq();
 
-//            if(ultimoACKEnviadoCliente==packet.getNumAck())
-//                packet.setAckRepetido(true);
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoCliente=packet.getSeq();
+
+            //            if(ultimoACKEnviadoCliente==packet.getNumAck())
+            //                packet.setAckRepetido(true);
 
             ultimoACKEnviadoCliente=packet.getNumAck();
         }
@@ -587,15 +593,16 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " <<packet.getSeq() << " " << packet.getId() << " " << "ACK PURO" << endl;
 
-            ultimoSeqEnviadoServidor=packet.getSeq();
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoServidor=packet.getSeq();
 
-//            if(ultimoACKRecibidoServidor==packet.getNumAck())
-//                packet.setAckRepetido(true);
+            //            if(ultimoACKRecibidoServidor==packet.getNumAck())
+            //                packet.setAckRepetido(true);
 
             ultimoACKRecibidoServidor=packet.getNumAck();
 
 
-           //evaluar listaPaqServidor.append(packet);
+            //evaluar listaPaqServidor.append(packet);
 
 
         }
@@ -615,16 +622,16 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
 
             eventType = "-";
-           // double timeAux = packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:packet.getTimeStamp();
+            // double timeAux = packet.getSizeData() > 0? packet.getTimeStamp()+timeEncolado:packet.getTimeStamp();
             trace << eventType << " " << packet.getTimeStamp() << " " << nodoCliente << " ";
             trace << nodoServidor << " " << namePacket << " " << packet.getSize() << " ";
             trace << banderas << " " <<packet.getPortFuente() << " " << packet.getPortDestino()<< " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoCliente=packet.getSeq();
 
-            ultimoSeqEnviadoCliente=packet.getSeq();
-
-//            if(ultimoACKEnviadoCliente==packet.getNumAck())
-//                packet.setAckRepetido(true);
+            //            if(ultimoACKEnviadoCliente==packet.getNumAck())
+            //                packet.setAckRepetido(true);
 
             ultimoACKEnviadoCliente=packet.getNumAck();
 
@@ -654,10 +661,11 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
             trace << banderas << " " << packet.getPortFuente() << " " << packet.getPortDestino() << " ";
             trace << packet.getCwnd() << " " << packet.getSeq() << " " << packet.getId() << " " << "FIN+ACK" << endl;
 
-            ultimoSeqEnviadoServidor=packet.getSeq();
+            if(!packet.getRestransmision())
+                ultimoSeqEnviadoServidor=packet.getSeq();
 
-//            if(ultimoACKRecibidoServidor==packet.getNumAck())
-//                packet.setAckRepetido(true);
+            //            if(ultimoACKRecibidoServidor==packet.getNumAck())
+            //                packet.setAckRepetido(true);
 
             ultimoACKRecibidoServidor=packet.getNumAck();
             listaPaqServidor.append(packet);

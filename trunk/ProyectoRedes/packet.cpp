@@ -1,6 +1,7 @@
 #include "packet.h"
 #include <iostream>
 
+
 using namespace std;
 double tiempoB;
 
@@ -8,11 +9,13 @@ Packet::Packet()
 {
 }
 
-Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp, int numberPacketCaptured)
+Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp, int numberPacketCaptured, const u_char *payload)
 {
 
     int size_ip;
     int size_tcp;
+
+
     FIN=SYN=RST= PUSH= ACK= URG= ECE= CWR=false;
     setAcusado(-100);
     setAckRepetido(false);
@@ -63,7 +66,7 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
 
     else if(ACK && tam==0)
     {
-         setNextSeq(-100);
+        setNextSeq(-100);
     }
     else if(tam>0 && ACK)
     {
@@ -76,6 +79,29 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
     cout<<"paquete creado lo  reconocera ack"<<this->nextSeq<<endl;
     printf("ack llego %u",ntohl(tcp->th_ack));
     printf("ack guardo %u",getNumAck());
+
+
+    /*PAYLOAD*/
+
+
+    /* define/compute tcp payload (segment) offset */
+    this->payload = payload;
+
+    /* compute tcp payload (segment) size */
+    this->size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+
+    //    /*
+    //           * Print payload data; it might be binary, so don't just
+    //           * treat it as a string.
+    //           */
+    //    if (size_payload > 0) {
+    //        printf("   Payload (%d bytes):\n", size_payload);
+    //        print_payload(payload, size_payload);
+    //    }
+
+
+
+
 }
 
 void Packet::setNumberPacketCaptured(int numberPackeCaptured)
@@ -347,3 +373,100 @@ double Packet::calculo_time(const pcap_pkthdr * header)
 
     return tiempoNuevo-tiempoB;
 }
+
+QList<QString> Packet::print_payload()
+{
+    int len_rem = this->size_payload;
+    int line_width = 16;			/* number of bytes per line */
+    int line_len;
+    int offset = 0;					/* zero-based offset counter */
+    const u_char *ch = this->payload;
+    QList<QString> listaLineas;
+
+    if (len_rem <= 0)
+        return listaLineas;
+
+    /* data fits on one line */
+    if (len_rem <= line_width) {
+        listaLineas.append( print_hex_ascii_line(ch, len_rem, offset));
+        return listaLineas;
+    }
+
+    /* data spans multiple lines */
+    for ( ;; ) {
+
+        /* compute current line length */
+        line_len = line_width % len_rem;
+        /* print line */
+        listaLineas.append(print_hex_ascii_line(ch, line_len, offset));
+        /* compute total remaining */
+        len_rem = len_rem - line_len;
+        /* shift pointer to remaining bytes to print */
+        ch = ch + line_len;
+        /* add offset */
+        offset = offset + line_width;
+        /* check if we have line width chars or less */
+        if (len_rem <= line_width) {
+            /* print last line and get out */
+            listaLineas.append(print_hex_ascii_line(ch, len_rem, offset));
+            break;
+        }
+    }
+
+    return listaLineas;
+}
+
+QString Packet::print_hex_ascii_line(const u_char *payload, int len, int offset)
+{
+
+    int i;
+    int gap;
+    const u_char *ch;
+    QString linea;
+
+    /* offset */
+    printf("%05d   ", offset);
+
+    /* hex */
+    ch = payload;
+    for(i = 0; i < len; i++) {
+        printf("%02x ", *ch);
+        ch++;
+        /* print extra space after 8th byte for visual aid */
+        if (i == 7)
+            printf(" ");
+    }
+    /* print space to handle line less than 8 bytes */
+    if (len < 8)
+        printf(" ");
+
+    /* fill hex gap with spaces if not full line */
+    if (len < 16) {
+        gap = 16 - len;
+        for (i = 0; i < gap; i++) {
+            printf("   ");
+        }
+    }
+    printf("   ");
+
+    /* ascii (if printable) */
+    ch = payload;
+    for(i = 0; i < len; i++) {
+        if (isprint(*ch))
+            printf("%c", *ch);
+        else
+            printf(".");
+        ch++;
+    }
+
+    printf("\n");
+
+    return linea;
+}
+
+
+
+
+
+
+

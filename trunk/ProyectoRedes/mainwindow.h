@@ -6,6 +6,7 @@
 #include <pcapthread.h>
 #include <tablepacket.h>
 #include <textpacket.h>
+#include <textpayload.h>
 
 using namespace std;
 
@@ -76,6 +77,7 @@ private:
     QSplitter *splitPane;
     TextPacket * textPacket;
     TablePacket *tablePacket;
+    TextPayload   *textPayload;
 
 };
 

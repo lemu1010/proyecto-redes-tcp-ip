@@ -17,6 +17,11 @@ void TextPacket::setListPackect(Packet packet)
     this->listaPacket.append(packet);
 }
 
+Packet TextPacket::getPacket(int row)
+{
+    return listaPacket.at(row);
+}
+
 void TextPacket::setRowPackect(int row, int col)
 {
     QString infomationPacket;
