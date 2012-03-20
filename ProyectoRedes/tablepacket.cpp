@@ -113,8 +113,10 @@ void TablePacket::addPacket(Packet packet)
             cadInfo = "[SYN,ACK]" + cadInfoAddicional;
         else if( packet.getACK() && packet.getSizeData() == 0 && not (packet.getFIN()))
             cadInfo = "[ACK]" + cadInfoAddicional;
-        else if( packet.getACK() &&not (packet.getFIN()) && packet.getSizeData()>0)
+        else if( packet.getACK() &&not (packet.getFIN()) && packet.getSizeData()>0 && !packet.getRestransmision())
             cadInfo = "[TCP Segemento Data]";
+        else if( packet.getACK() &&not (packet.getFIN()) && packet.getSizeData()>0 && packet.getRestransmision())
+            cadInfo = "[TCP Retransmisión]";
         else if( packet.getFIN() && packet.getACK() )
             cadInfo = "[FIN,ACK]" + cadInfoAddicional;
 
