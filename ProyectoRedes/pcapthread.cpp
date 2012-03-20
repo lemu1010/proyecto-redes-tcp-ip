@@ -309,7 +309,12 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     cout<<"tiempo de funcion "<<diff<<endl;
 
     //-----------------------------CODIGO DE CLASE---------------------------------------
-    Packet paqueteEvaluado(header,ip,tcp,countPacket);
+    const u_char *payload;                    /* Packet payload */
+    /* define/compute tcp payload (segment) offset */
+    payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
+
+
+    Packet paqueteEvaluado(header,ip,tcp,countPacket,payload);
     conexionActual.evaluarNuevoPaquete(paqueteEvaluado,nodo1.toInt(),nodo2.toInt(),file);
     hashConexiones.remove(key);
     hashConexiones.insert(key,conexionActual);
@@ -322,6 +327,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         cout<<"porcentaje de paquetes pintados"<<((float)conexionActual.getcontadorPaquetesPintados()/(float)conexionActual.getcontadorPaquetes()) *100<<endl;
 
     }
+
+
 
     return;
 }

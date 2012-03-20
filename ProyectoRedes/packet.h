@@ -2,6 +2,7 @@
 #define PACKET_H
 #include <QString>
 #include <struct.h>
+#include <QList>
 
 class Packet
 {
@@ -32,11 +33,17 @@ class Packet
     bool CWR;
     bool ackRepetido;
     bool retransmision;
+    const u_char *payload;
+    int size_payload;
+
+
+
 
 
 public:
     Packet();
-    Packet( const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp, int numberPacketCaptured);
+    Packet( const struct pcap_pkthdr *header,const struct sniff_ip *ip,const struct sniff_tcp *tcp, int numberPacketCaptured, const u_char *payload
+);
 
     void    setNumberPacketCaptured(int );
     int     getNumberPacketCaptured();
@@ -103,6 +110,12 @@ public:
     bool getCWR();
 
     double calculo_time(const struct pcap_pkthdr *);
+
+
+    QList<QString> print_payload();
+    QString print_hex_ascii_line(const u_char *payload, int len, int offset);
+
+
 };
 
 #endif // PACKET_H

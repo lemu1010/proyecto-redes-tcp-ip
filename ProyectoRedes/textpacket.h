@@ -14,6 +14,7 @@ class TextPacket : public QTextEdit
 public:
     explicit TextPacket();
     void setListPackect(Packet );
+    Packet getPacket(int row);
     
 private:
     void initGUI();
