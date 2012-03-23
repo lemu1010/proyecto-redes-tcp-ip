@@ -16,8 +16,8 @@ SOURCES += main.cpp\
     packet.cpp \
     pcapthread.cpp \
     tablepacket.cpp \
-    textpacket.cpp \
-    textpayload.cpp
+    textpayload.cpp \
+    treepacket.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -28,8 +28,8 @@ HEADERS  += mainwindow.h \
     tablepacket.h \
     pcapthread.h \
     tablepacket.h \
-    textpacket.h \
-    textpayload.h
+    textpayload.h \
+    treepacket.h
 
 FORMS    += mainwindow.ui
 

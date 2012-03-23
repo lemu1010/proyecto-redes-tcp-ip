@@ -5,7 +5,7 @@
 #include <QtGui>
 #include <pcapthread.h>
 #include <tablepacket.h>
-#include <textpacket.h>
+#include <treepacket.h>
 #include <textpayload.h>
 
 using namespace std;
@@ -72,10 +72,11 @@ private:
     PcapThread *pcapThread;
 
     bool working;
+    int ancho;
     int alto;
 
     QSplitter *splitPane;
-    TextPacket * textPacket;
+    TreePacket *treePacket;
     TablePacket *tablePacket;
     TextPayload   *textPayload;
 
