@@ -6,6 +6,7 @@
 #include <fstream>
 #include <packet.h>
 #include <tablepacket.h>
+#include <treepacket.h>
 
 using namespace std;
 
@@ -33,11 +34,11 @@ class Conexion
     QList <Packet>listaPaqServidor;
 
     TablePacket *tablePacket;
-    TextPacket  *textPacket;
+    TreePacket  *treePacket;
 
 public:
     Conexion();
-    Conexion(int,int,int, TablePacket *&,TextPacket *& );
+    Conexion(int,int,int, TablePacket *&,TreePacket *& );
     void setNodoCliente(int );
     void setNodoServidor(int );
     void setNumeroConexion(int);

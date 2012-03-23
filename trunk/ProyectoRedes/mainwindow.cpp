@@ -20,9 +20,8 @@ void  MainWindow::initGUI()
     setWindowTitle("WireFish");
     setWindowIcon(QIcon(":/images/logo.png"));
 
-    int ancho = QApplication::desktop()->width();
+    ancho = QApplication::desktop()->width();
     alto = QApplication::desktop()->height();
-    setGeometry(0,0,ancho,alto);
 
     QRect geometry = this->geometry();
     geometry.moveCenter(QApplication::desktop()->availableGeometry().center());
@@ -194,18 +193,18 @@ void MainWindow::slotPlayCaptura()
             connect(tablePacket, SIGNAL(cellClicked(int,int)), tablePacket, SLOT(selectRow(int)));
             splitPane->addWidget(tablePacket);
 
-            textPacket = new TextPacket();
-            splitPane->addWidget(textPacket);
-            connect(tablePacket, SIGNAL(cellClicked(int,int)), textPacket, SLOT(setRowPackect(int,int)));
+            treePacket = new TreePacket();
+            connect(tablePacket, SIGNAL(cellClicked(int,int)), treePacket, SLOT(setRowPackect(int,int)));
+            splitPane->addWidget(treePacket);
 
-            textPayload=new TextPayload();
-            splitPane->addWidget(textPayload);
+//            textPayload=new TextPayload();
+//            splitPane->addWidget(textPayload);
+//            connect(tablePacket,SIGNAL(cellClicked(Packet)),textPayload,SLOT(setTextPayload(Packet)));
 
-            connect(tablePacket,SIGNAL(cellClicked(Packet)),textPayload,SLOT(setTextPayload(Packet)));
             setCentralWidget(splitPane);
 
             pcapThread->setTablePacket(tablePacket);
-            pcapThread->setTextPacket(textPacket);
+            pcapThread->setTreePacket(treePacket);
 
             if(!pcapThread->setFile(nameFile))
                  messageBox("ERROR: no ha sido posible establecer archivo de traza");
@@ -345,8 +344,8 @@ void MainWindow::clearWidgets()
 
     working = false;
 
-    textPacket->clear();
-    delete textPacket;
+    treePacket->clear();
+    delete treePacket;
 
     tablePacket->clearContents();
     delete tablePacket;

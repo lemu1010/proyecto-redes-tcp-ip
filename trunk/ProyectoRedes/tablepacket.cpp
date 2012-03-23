@@ -16,11 +16,14 @@ void TablePacket::initGUI()
 
     this->setHorizontalHeaderLabels(headerRow);
     this->verticalHeader()->hide();
-    this->setColumnWidth(0,45);
-    this->setColumnWidth(1,150);
-    this->setColumnWidth(2,220);
-    this->setColumnWidth(3,220);
-    this->setColumnWidth(4,385);
+
+    int ancho = QApplication::desktop()->width();
+
+    this->setColumnWidth(0, ancho - (ancho - 45));
+    this->setColumnWidth(1, ancho - (ancho - 140));
+    this->setColumnWidth(2, ancho - (ancho - 210));
+    this->setColumnWidth(3, ancho - (ancho - 210));
+    this->setColumnWidth(4, ancho - (ancho - 398));
 
     rCount = this->rowCount();
 
@@ -42,6 +45,7 @@ void TablePacket::addPacket(Packet packet)
         if( packet.getAckRepetido() || packet.getRestransmision() ) {
             item->setBackgroundColor(QColor(0,0,0));
             item->setForeground(QBrush(QColor(255,0,0)));
+
         }
         else
             item->setBackgroundColor(QColor(112,224,255));
