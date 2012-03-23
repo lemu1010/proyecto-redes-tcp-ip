@@ -344,6 +344,9 @@ void MainWindow::clearWidgets()
 
     working = false;
 
+    actionFlujoTcp->setEnabled(false);
+    actionTraza->setEnabled(false);
+
     treePacket->clear();
     delete treePacket;
 
