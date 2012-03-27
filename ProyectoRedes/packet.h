@@ -35,6 +35,8 @@ class Packet
     bool retransmision;
     const u_char *payload;
     int size_payload;
+    int sizeIP;
+    int sizeTCP;
 
 
 
@@ -80,6 +82,12 @@ public:
 
     void setSizeData(unsigned int);
     unsigned int getSizeData();
+
+    void setSizeIP(int );
+    int getSizeIP();
+
+    void setSizeTCP(int );
+    int getSizeTCP();
 
     void setNextSeq(unsigned int);
     unsigned int getNextSeq();
