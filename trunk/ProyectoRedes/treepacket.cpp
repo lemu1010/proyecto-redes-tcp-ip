@@ -1,5 +1,6 @@
 #include "treepacket.h"
 #include <QDebug>
+
 TreePacket::TreePacket()
 {
     initGUI();
@@ -17,6 +18,7 @@ void TreePacket::initGUI()
     itemSeqNumber = new QTreeWidgetItem(itemFather);
     itemSeqNext = new QTreeWidgetItem(itemFather);
     itemAckNumber = new QTreeWidgetItem(itemFather);
+    itemHeaderTCP = new QTreeWidgetItem(itemFather);
     itemFlag = new QTreeWidgetItem(itemFather);
     itemFlag->setText(0,"Banderas: ");
     itemFlagCwr = new QTreeWidgetItem(itemFlag);
@@ -60,6 +62,7 @@ void TreePacket::setRowPackect(int row, int col)
     itemSeqNumber->setText(0,"Número de Secuencia: " + QString::number(listaPacket[row].getSeq()));
     itemSeqNext->setText(0,"[ Siguiente Número de Secuencia: " + QString::number(listaPacket[row].getNextSeq()) + " ]");
     itemAckNumber->setText(0,"Número de Acknowledgement: " + QString::number(listaPacket[row].getNumAck()));
+    itemHeaderTCP->setText(0,"Longitud de Cabecera: " + QString::number(listaPacket[row].getSizeTCP()) + " bytes");
 
     itemFlagCwr->setText(0,QString::number(listaPacket[row].getCWR()) + " = " + "CWR (Congestion Window Reduced)");
     itemFlagEce->setText(0,QString::number(listaPacket[row].getECE()) + " = " + "ECE (ECN-Echo)");

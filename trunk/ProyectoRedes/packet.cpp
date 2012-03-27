@@ -28,14 +28,14 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
         printf("   * Invalid IP header length: %u bytes\n", size_ip);
         return;
     }
-
-
+    setSizeIP(size_ip);
 
     size_tcp = TH_OFF(tcp)*4;
     if (size_tcp < 20) {
         printf("   * Invalid TCP header length: %u bytes\n", size_tcp);
         return;
     }
+    setSizeTCP(size_tcp);
 
     setNumberPacketCaptured(numberPacketCaptured);
     setIPFuente(inet_ntoa(ip->ip_src));
@@ -223,6 +223,26 @@ void Packet::setSizeData(unsigned int sizeData)
 unsigned int Packet::getSizeData()
 {
     return(sizeData);
+}
+
+void Packet::setSizeIP(int sizeIP)
+{
+    this->sizeIP = sizeIP;
+}
+
+int Packet::getSizeIP()
+{
+    return(sizeIP);
+}
+
+void Packet::setSizeTCP(int sizeTCP)
+{
+    this->sizeTCP = sizeTCP;
+}
+
+int Packet::getSizeTCP()
+{
+    return(sizeTCP);
 }
 
 void Packet::setNextSeq(unsigned int nextSeq)

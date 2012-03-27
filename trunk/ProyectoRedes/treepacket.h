@@ -16,6 +16,7 @@ class TreePacket : public QTreeWidget
     QTreeWidgetItem *itemSeqNumber;
     QTreeWidgetItem *itemSeqNext;
     QTreeWidgetItem *itemAckNumber;
+    QTreeWidgetItem *itemHeaderTCP;
     QTreeWidgetItem *itemFlag;
     QTreeWidgetItem *itemFlagCwr;
     QTreeWidgetItem *itemFlagEce;
