@@ -2,13 +2,14 @@
 #define TEXTPACKET_H
 
 #include <QTreeWidget>
+#include <tablepacket.h>
 #include <packet.h>
 
 class TreePacket : public QTreeWidget
 {
     Q_OBJECT
 
-    QList<Packet> listaPacket;
+    TablePacket *tablePacket;
 
     QTreeWidgetItem *itemFather;
     QTreeWidgetItem *itemPortSrc;
@@ -31,8 +32,7 @@ class TreePacket : public QTreeWidget
 
 public:
     explicit TreePacket();
-    void setListPackect(Packet );
-    Packet getPacket(int row);
+    void setTablePacket(TablePacket *);
     
 private:
     void initGUI();

@@ -1,8 +1,11 @@
 #ifndef PACKET_H
 #define PACKET_H
+
 #include <QString>
 #include <struct.h>
 #include <QList>
+
+using namespace std;
 
 class Packet
 {
@@ -37,6 +40,7 @@ class Packet
     int size_payload;
     int sizeIP;
     int sizeTCP;
+    QList<string> listaPayload;
 
 
 
@@ -89,6 +93,9 @@ public:
     void setSizeTCP(int );
     int getSizeTCP();
 
+    void setSizePayload(int );
+    int getSizePayload();
+
     void setNextSeq(unsigned int);
     unsigned int getNextSeq();
 
@@ -117,11 +124,14 @@ public:
     bool getECE();
     bool getCWR();
 
+    void setPayload(QList<string> );
+    QList<string> getPayload();
+
     double calculo_time(const struct pcap_pkthdr *);
 
 
-    QList<QString> print_payload();
-    QString print_hex_ascii_line(const u_char *payload, int len, int offset);
+    QList<string> print_payload(const u_char *payload, int len);
+    string print_hex_ascii_line(const u_char *payload, int len, int offset);
 
 
 };

@@ -9,7 +9,8 @@ Conexion::Conexion()
     contadorPaquetesPintados=0;
     RTTEstimado=0.0;
 }
-Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TablePacket *& tablePacket, TreePacket *&treePacket)
+
+Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TablePacket *& tablePacket)
 {
     this->contadorPaquetes = 0;
     this->contadorPaquetesPintados=0;
@@ -21,7 +22,6 @@ Conexion::Conexion(int nodoCliente,int nodoServidor, int nuemeroConexion, TableP
 
 
     this->tablePacket = &(*tablePacket);
-    this->treePacket = &(*treePacket);
     cout<<"incializado"<<contadorPaquetes<<endl;
 
 }
@@ -675,7 +675,7 @@ void Conexion::evaluarNuevoPaquete( Packet packet,int fuente,int destino, ofstre
     }
 
     tablePacket->addPacket(packet);
-    treePacket->setListPackect(packet);
+
 }
 
 void Conexion::imprimirListas()

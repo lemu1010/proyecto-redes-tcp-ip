@@ -1,8 +1,6 @@
 #include "packet.h"
 #include <iostream>
 
-
-using namespace std;
 double tiempoB;
 
 Packet::Packet()
@@ -89,19 +87,20 @@ Packet::Packet(const struct pcap_pkthdr *header,const struct sniff_ip *ip,const 
 
     /* compute tcp payload (segment) size */
     this->size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+    setSizePayload(size_payload);
 
-    //    /*
-    //           * Print payload data; it might be binary, so don't just
-    //           * treat it as a string.
-    //           */
-    //    if (size_payload > 0) {
-    //        printf("   Payload (%d bytes):\n", size_payload);
-    //        print_payload(payload, size_payload);
-    //    }
-
-
-
-
+    /*
+               * Print payload data; it might be binary, so don't just
+               * treat it as a string.
+               */
+//    if (size_payload > 0) {
+//        printf("   Payload (%d bytes):\n", size_payload);
+//        print_payload();
+//    }
+    if( this->size_payload > 0 ) {
+        printf("   Payload (%d bytes):\n", size_payload);
+        setPayload(print_payload(payload, this->size_payload));
+    }
 }
 
 void Packet::setNumberPacketCaptured(int numberPackeCaptured)
@@ -245,6 +244,16 @@ int Packet::getSizeTCP()
     return(sizeTCP);
 }
 
+void Packet::setSizePayload(int size_payload)
+{
+    this->size_payload = size_payload;
+}
+
+int Packet::getSizePayload()
+{
+    return(size_payload);
+}
+
 void Packet::setNextSeq(unsigned int nextSeq)
 {
     this->nextSeq=nextSeq;
@@ -383,6 +392,16 @@ bool Packet::getCWR()
     return(CWR);
 }
 
+void Packet::setPayload(QList<string> listaPayload)
+{
+    this->listaPayload = listaPayload;
+}
+
+QList<string> Packet::getPayload()
+{
+    return(listaPayload);
+}
+
 double Packet::calculo_time(const pcap_pkthdr * header)
 {
 
@@ -394,14 +413,14 @@ double Packet::calculo_time(const pcap_pkthdr * header)
     return tiempoNuevo-tiempoB;
 }
 
-QList<QString> Packet::print_payload()
+QList<string> Packet::print_payload(const u_char *payload, int len)
 {
-    int len_rem = this->size_payload;
+    int len_rem = len;
     int line_width = 16;			/* number of bytes per line */
     int line_len;
     int offset = 0;					/* zero-based offset counter */
-    const u_char *ch = this->payload;
-    QList<QString> listaLineas;
+    const u_char *ch = payload;
+    QList<string> listaLineas;
 
     if (len_rem <= 0)
         return listaLineas;
@@ -436,50 +455,56 @@ QList<QString> Packet::print_payload()
     return listaLineas;
 }
 
-QString Packet::print_hex_ascii_line(const u_char *payload, int len, int offset)
+string Packet::print_hex_ascii_line(const u_char *payload, int len, int offset)
 {
 
     int i;
     int gap;
     const u_char *ch;
-    QString linea;
+    string linea;
+    char str[20];
 
     /* offset */
-    printf("%05d   ", offset);
+    sprintf(str, "%05d\t", offset);
+    linea.append(str);
 
     /* hex */
     ch = payload;
     for(i = 0; i < len; i++) {
-        printf("%02x ", *ch);
+        sprintf(str,"%02x  ", *ch);
+        linea.append(str);
         ch++;
         /* print extra space after 8th byte for visual aid */
         if (i == 7)
-            printf(" ");
+            linea.append("\t");
     }
+
     /* print space to handle line less than 8 bytes */
     if (len < 8)
-        printf(" ");
+        linea.append("\t");
 
     /* fill hex gap with spaces if not full line */
     if (len < 16) {
         gap = 16 - len;
         for (i = 0; i < gap; i++) {
-            printf("   ");
+            linea.append("   ");
         }
     }
-    printf("   ");
+
+    linea.append("\t");
 
     /* ascii (if printable) */
     ch = payload;
     for(i = 0; i < len; i++) {
-        if (isprint(*ch))
-            printf("%c", *ch);
-        else
-            printf(".");
+        if (isprint(*ch)) {
+            sprintf(str,"%c", *ch);
+            linea.append(str);
+        }else
+            linea.append(".");
         ch++;
     }
 
-    printf("\n");
+    linea.append("\n");
 
     return linea;
 }

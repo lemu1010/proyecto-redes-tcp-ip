@@ -31,7 +31,7 @@ void TablePacket::initGUI()
 
 void TablePacket::addPacket(Packet packet)
 {
-
+    this->listaPacket.append(packet);
     rCount += 1;
 
     this->setRowCount(rCount);
@@ -129,6 +129,11 @@ void TablePacket::addPacket(Packet packet)
 
     }
 
+}
+
+Packet TablePacket::getPacket(int row)
+{
+    return listaPacket.at(row);
 }
 
 

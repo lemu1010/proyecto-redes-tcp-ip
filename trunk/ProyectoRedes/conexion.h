@@ -34,11 +34,10 @@ class Conexion
     QList <Packet>listaPaqServidor;
 
     TablePacket *tablePacket;
-    TreePacket  *treePacket;
 
 public:
     Conexion();
-    Conexion(int,int,int, TablePacket *&,TreePacket *& );
+    Conexion(int,int,int, TablePacket *&);
     void setNodoCliente(int );
     void setNodoServidor(int );
     void setNumeroConexion(int);

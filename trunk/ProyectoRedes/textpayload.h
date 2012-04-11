@@ -2,17 +2,20 @@
 #define TEXTPAYLOAD_H
 
 #include <QTextEdit>
+#include <tablepacket.h>
 
 class TextPayload : public QTextEdit
 {
     Q_OBJECT
+
+    TablePacket *tablePacket;
+
 public:
     explicit TextPayload();
-    
-signals:
-    
+    void setTablePacket(TablePacket *);
+
 public slots:
-     void setTextPayload(int ,int);
+     void setTextPayload(int, int);
     
 };
 
