@@ -1,17 +1,18 @@
 #ifndef TABLEPACKET_H
 #define TABLEPACKET_H
 
-#include <QTableWidget>
 #include <QtGui>
 #include <packet.h>
 
 class TablePacket : public QTableWidget
 {
 
+    QList<Packet> listaPacket;
+
 public:
     TablePacket();
     void addPacket(Packet );
-
+    Packet getPacket(int row);
 
 private:
     void initGUI();

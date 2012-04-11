@@ -194,17 +194,18 @@ void MainWindow::slotPlayCaptura()
             splitPane->addWidget(tablePacket);
 
             treePacket = new TreePacket();
+            treePacket->setTablePacket(tablePacket);
             connect(tablePacket, SIGNAL(cellClicked(int,int)), treePacket, SLOT(setRowPackect(int,int)));
             splitPane->addWidget(treePacket);
 
-//            textPayload=new TextPayload();
-//            splitPane->addWidget(textPayload);
-//            connect(tablePacket,SIGNAL(cellClicked(Packet)),textPayload,SLOT(setTextPayload(Packet)));
+            textPayload = new TextPayload();
+            textPayload->setTablePacket(tablePacket);
+            splitPane->addWidget(textPayload);
+            connect(tablePacket, SIGNAL(cellClicked(int,int)), textPayload, SLOT(setTextPayload(int, int)));
 
             setCentralWidget(splitPane);
 
             pcapThread->setTablePacket(tablePacket);
-            pcapThread->setTreePacket(treePacket);
 
             if(!pcapThread->setFile(nameFile))
                  messageBox("ERROR: no ha sido posible establecer archivo de traza");
@@ -352,6 +353,9 @@ void MainWindow::clearWidgets()
 
     tablePacket->clearContents();
     delete tablePacket;
+
+    textPayload->clear();
+    delete textPayload;
 
     pcapThread->started = false;
 

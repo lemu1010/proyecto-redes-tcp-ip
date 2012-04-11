@@ -1,7 +1,6 @@
 #include "pcapthread.h"
 
 TablePacket *tablePacketThread;
-TreePacket *treePacketThread;
 
 int countPacket = 0;
 int countNodes  =-1;
@@ -141,12 +140,12 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     {
 
         cout<<"insertara esta conexion con clave "<<(nodo1+nodo2).toStdString()<<endl;
-        Conexion nuevaConexion(nodo1.toInt(),nodo2.toInt(),hashConexiones.size()+1,tablePacketThread, treePacketThread);// una conexion compuesta de dos nodos
+        Conexion nuevaConexion(nodo1.toInt(),nodo2.toInt(),hashConexiones.size()+1,tablePacketThread);// una conexion compuesta de dos nodos
         hashConexiones.insert(nodo1+nodo2,nuevaConexion);
 
     }
     cout<<"conexion falsa"<<endl;
-    Conexion conexionFalsa(-1,-1,-1, tablePacketThread, treePacketThread);
+    Conexion conexionFalsa(-1,-1,-1, tablePacketThread);
 
     Conexion    conexionActual    = hashConexiones.value(nodo1+nodo2,conexionFalsa);
     key=nodo1+nodo2;
@@ -469,11 +468,6 @@ void PcapThread::resetValues()
 void PcapThread::setTablePacket(TablePacket *& tablePacket)
 {
     tablePacketThread = tablePacket;
-}
-
-void PcapThread::setTreePacket(TreePacket *&treePacket)
-{
-    treePacketThread = treePacket;
 }
 
 void PcapThread::closeFile()

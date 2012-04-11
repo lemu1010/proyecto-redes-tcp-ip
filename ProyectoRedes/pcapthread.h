@@ -46,7 +46,6 @@ public:
     void resetValues();
 
     void setTablePacket(TablePacket *&);
-    void setTreePacket(TreePacket *&);
     void closeFile();
     bool setFile(QString file);
     /* Thread Functions */
